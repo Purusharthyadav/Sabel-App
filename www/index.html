@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Sable — Private Ledger</title>
+<meta name="theme-color" content="#0b0d0c" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Karla:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Figtree:wght@400;500;600;700;800&family=Spectral:wght@400;500;600;700&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0c0b;
+  --bg:#0b0d0c;
+  --bg-elev:#141715;
+  --bg-elev-2:#1b201d;
+  --bg-elev-3:#232925;
+  --gold:#d1ab4d;
+  --gold-soft:#e8cc8e;
+  --gold-dim:#7d6a3c;
+  --emerald:#4aae82;
+  --emerald-dim:#2c5c46;
+  --rust:#c1706b;
+  --rust-dim:#5c332f;
+  --text:#efe9dc;
+  --text-dim:#a49b8a;
+  --text-faint:#6e6858;
+  --border:color-mix(in srgb, var(--gold) 14%, transparent);
+  --border-soft:rgba(239,233,220,0.08);
+  --radius-lg:22px;
+  --radius-md:16px;
+  --radius-sm:10px;
+  --font-display:'Fraunces',serif;
+  --font-body:'Manrope',sans-serif;
+  --on-accent:#211a08;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+
+/* ---------- Theme: Ivory Ledger (light, editorial) ---------- */
+html[data-theme="ivory"]{
+  --ink:#f6f1e6;
+  --bg:#f6f1e6;
+  --bg-elev:#ffffff;
+  --bg-elev-2:#efe7d6;
+  --bg-elev-3:#e6dcc6;
+  --gold:#9c6b1f;
+  --gold-soft:#c08d34;
+  --gold-dim:#7a541a;
+  --emerald:#3f7d54;
+  --emerald-dim:#2c5c3d;
+  --rust:#a64937;
+  --rust-dim:#7d3527;
+  --text:#241f16;
+  --text-dim:#6b6152;
+  --text-faint:#9a8f7a;
+  --border:color-mix(in srgb, var(--gold) 22%, transparent);
+  --border-soft:rgba(36,31,22,0.10);
+  --font-display:'Newsreader',serif;
+  --font-body:'Karla',sans-serif;
+  --on-accent:#fbf6ea;
+}
+/* ---------- Theme: Terminal (black, monospace, utilitarian) ---------- */
+html[data-theme="terminal"]{
+  --ink:#000000;
+  --bg:#000000;
+  --bg-elev:#0a0f0a;
+  --bg-elev-2:#0f1710;
+  --bg-elev-3:#141d16;
+  --gold:#3ee87a;
+  --gold-soft:#8dffb5;
+  --gold-dim:#1f8f4c;
+  --emerald:#3ee87a;
+  --emerald-dim:#1f8f4c;
+  --rust:#ff5c5c;
+  --rust-dim:#9c2f2f;
+  --text:#c8ffd9;
+  --text-dim:#6f9c82;
+  --text-faint:#3f5a4a;
+  --border:color-mix(in srgb, var(--gold) 22%, transparent);
+  --border-soft:rgba(62,232,122,0.14);
+  --font-display:'JetBrains Mono',monospace;
+  --font-body:'JetBrains Mono',monospace;
+  --on-accent:#04140a;
+}
+/* ---------- Theme: Soft Clay (warm, organic pastel) ---------- */
+html[data-theme="clay"]{
+  --ink:#faf1ea;
+  --bg:#faf1ea;
+  --bg-elev:#ffffff;
+  --bg-elev-2:#f5e4d8;
+  --bg-elev-3:#eed3c0;
+  --gold:#c96f4a;
+  --gold-soft:#e2966d;
+  --gold-dim:#a04f2e;
+  --emerald:#6f9c7d;
+  --emerald-dim:#4d7a5c;
+  --rust:#b85450;
+  --rust-dim:#8c3835;
+  --text:#3a2e28;
+  --text-dim:#8a7367;
+  --text-faint:#b8a89b;
+  --border:color-mix(in srgb, var(--gold) 22%, transparent);
+  --border-soft:rgba(58,46,40,0.09);
+  --font-display:'Instrument Serif',serif;
+  --font-body:'Figtree',sans-serif;
+  --on-accent:#2b190f;
+}
+/* ---------- Theme: Midnight Ocean (cool, refined dark) ---------- */
+html[data-theme="ocean"]{
+  --ink:#070c12;
+  --bg:#070c12;
+  --bg-elev:#0e161f;
+  --bg-elev-2:#141f2b;
+  --bg-elev-3:#1b2836;
+  --gold:#8fb3ff;
+  --gold-soft:#bcd3ff;
+  --gold-dim:#5878b8;
+  --emerald:#4fd1a5;
+  --emerald-dim:#2f8c6d;
+  --rust:#e0736b;
+  --rust-dim:#a3453e;
+  --text:#e6f0f5;
+  --text-dim:#8fa3ad;
+  --text-faint:#54636b;
+  --border:color-mix(in srgb, var(--gold) 20%, transparent);
+  --border-soft:rgba(143,179,255,0.12);
+  --font-display:'Spectral',serif;
+  --font-body:'Jost',sans-serif;
+  --on-accent:#0a1420;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  overflow:hidden;
+  position:fixed;
+  inset:0;
+}
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -10%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 110% 10%, color-mix(in srgb, var(--emerald) 8%, transparent), transparent 55%);
+  pointer-events:none;
+  z-index:0;
+}
+body::after{
+  content:"";
+  position:fixed;inset:0;
+  opacity:0.035;
+  pointer-events:none;
+  z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+#app{
+  position:relative;z-index:1;
+  height:100%;
+  display:flex;flex-direction:column;
+  max-width:560px;
+  margin:0 auto;
+  background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent 200px);
+}
+::-webkit-scrollbar{width:0;height:0;}
+a{color:inherit;}
+
+/* ---------- Topbar ---------- */
+.topbar{
+  padding:calc(14px + var(--safe-top)) 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(150deg,var(--gold-soft),var(--gold) 55%,var(--gold-dim));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px color-mix(in srgb, var(--gold) 25%, transparent), inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.brand-mark svg{width:18px;height:18px;}
+.brand-name{font-family:var(--font-display);font-weight:600;font-size:20px;letter-spacing:0.2px;}
+.brand-name small{display:block;font-family:var(--font-body);font-weight:600;font-size:9.5px;letter-spacing:2px;color:var(--text-faint);text-transform:uppercase;margin-top:-2px;}
+.topbar-actions{display:flex;gap:8px;}
+.icon-btn{
+  width:38px;height:38px;border-radius:50%;
+  background:var(--bg-elev);
+  border:1px solid var(--border-soft);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-dim);
+  cursor:pointer;
+  transition:transform .15s ease, color .15s ease, border-color .15s ease;
+}
+.icon-btn:active{transform:scale(0.9);}
+.icon-btn:hover{color:var(--gold-soft);border-color:var(--border);}
+.icon-btn svg{width:17px;height:17px;}
+
+/* ---------- Main scroll area ---------- */
+#view{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  padding:4px 20px calc(110px + var(--safe-bottom));
+  scroll-behavior:smooth;
+}
+.section-fade{animation:fadeUp .38s cubic-bezier(.16,1,.3,1) both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.stagger > *{animation:fadeUp .42s cubic-bezier(.16,1,.3,1) both;}
+.stagger > *:nth-child(1){animation-delay:.02s;}
+.stagger > *:nth-child(2){animation-delay:.06s;}
+.stagger > *:nth-child(3){animation-delay:.10s;}
+.stagger > *:nth-child(4){animation-delay:.14s;}
+.stagger > *:nth-child(5){animation-delay:.18s;}
+.stagger > *:nth-child(n+6){animation-delay:.20s;}
+
+h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0;}
+.eyebrow{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);font-weight:700;margin:0 0 6px;}
+
+/* ---------- Cards ---------- */
+.card{
+  background:linear-gradient(165deg, var(--bg-elev), var(--bg-elev-2));
+  border:1px solid var(--border-soft);
+  border-radius:var(--radius-lg);
+  padding:20px;
+  position:relative;
+  overflow:hidden;
+}
+.card + .card{margin-top:14px;}
+.hero-card{
+  background:radial-gradient(140% 140% at 15% 0%, color-mix(in srgb, var(--gold) 16%, transparent), transparent 55%), linear-gradient(165deg,var(--bg-elev),var(--bg-elev-2));
+  border:1px solid var(--border);
+  padding:26px 22px 22px;
+  margin-top:6px;
+}
+.hero-card .eyebrow{color:var(--gold-soft);opacity:0.85;}
+.net-worth-amount{font-family:var(--font-display);font-size:44px;font-weight:600;letter-spacing:-0.5px;line-height:1;}
+.net-worth-amount sup{font-size:22px;font-weight:500;color:var(--text-dim);}
+.hero-sub{display:flex;gap:16px;margin-top:16px;}
+.hero-stat{flex:1;}
+.hero-stat .lbl{font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.hero-stat .val{font-family:var(--font-display);font-size:18px;margin-top:4px;}
+.pill-delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:10px;}
+.pill-delta.up{background:color-mix(in srgb, var(--emerald) 15%, transparent);color:var(--emerald);}
+.pill-delta.down{background:color-mix(in srgb, var(--rust) 15%, transparent);color:var(--rust);}
+
+.row-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.mini-card{
+  background:var(--bg-elev);border:1px solid var(--border-soft);
+  border-radius:var(--radius-md);padding:15px;
+}
+.mini-card .lbl{font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:1.2px;font-weight:700;}
+.mini-card .val{font-family:var(--font-display);font-size:22px;margin-top:6px;}
+.mini-card .val.expense{color:var(--rust);}
+.mini-card .val.income{color:var(--emerald);}
+
+/* Month switcher */
+.month-switch{display:flex;align-items:center;justify-content:space-between;margin:18px 0 10px;}
+.month-switch .label{font-family:var(--font-display);font-size:16px;}
+.month-switch .arrows{display:flex;gap:6px;}
+.arrow-btn{width:30px;height:30px;border-radius:50%;background:var(--bg-elev);border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;color:var(--text-dim);cursor:pointer;}
+.arrow-btn svg{width:14px;height:14px;}
+.arrow-btn:active{transform:scale(0.88);}
+
+/* Chart */
+.chart-wrap{margin-top:6px;}
+.bar-row{display:flex;align-items:center;gap:10px;padding:8px 0;}
+.bar-row .icon{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--bg-elev-3);flex-shrink:0;}
+.bar-row .info{flex:1;min-width:0;}
+.bar-row .top-line{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px;}
+.bar-row .name{color:var(--text);font-weight:600;}
+.bar-row .amt{color:var(--text-dim);font-variant-numeric:tabular-nums;}
+.bar-track{height:6px;border-radius:6px;background:var(--bg-elev-3);overflow:hidden;}
+.bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));}
+.bar-fill.over{background:linear-gradient(90deg,var(--rust-dim),var(--rust));}
+
+svg.linechart{width:100%;height:120px;overflow:visible;}
+
+/* List rows */
+.list-empty{
+  text-align:center;padding:50px 20px;color:var(--text-faint);
+}
+.list-empty .glyph{font-size:30px;margin-bottom:10px;opacity:.6;}
+.list-empty .t{font-family:var(--font-display);font-size:16px;color:var(--text-dim);margin-bottom:4px;}
+.list-empty .s{font-size:12.5px;}
+
+.txn-group-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-faint);font-weight:700;margin:20px 0 8px 4px;}
+.txn-row{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 6px;border-bottom:1px solid var(--border-soft);
+  cursor:pointer;transition:background .15s;
+}
+.txn-row:active{background:var(--bg-elev);}
+.txn-row .icon{width:38px;height:38px;border-radius:11px;background:var(--bg-elev-2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;border:1px solid var(--border-soft);}
+.txn-row .mid{flex:1;min-width:0;}
+.txn-row .cat{font-weight:600;font-size:14px;}
+.txn-row .note{font-size:12px;color:var(--text-faint);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.txn-row .amt{font-family:var(--font-display);font-size:15.5px;font-variant-numeric:tabular-nums;flex-shrink:0;}
+.txn-row .amt.expense{color:var(--text);}
+.txn-row .amt.income{color:var(--emerald);}
+
+/* Buttons */
+.btn{
+  font-family:var(--font-body);font-weight:700;font-size:14px;
+  border:none;border-radius:14px;padding:14px 18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform .12s ease, filter .15s ease;
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{background:linear-gradient(150deg,var(--gold-soft),var(--gold));color:var(--on-accent);box-shadow:0 6px 18px color-mix(in srgb, var(--gold) 22%, transparent);}
+.btn-primary:hover{filter:brightness(1.06);}
+.btn-ghost{background:var(--bg-elev);border:1px solid var(--border-soft);color:var(--text);}
+.btn-danger{background:color-mix(in srgb, var(--rust) 12%, transparent);color:var(--rust);border:1px solid var(--rust-dim);}
+.btn-block{width:100%;}
+.btn-sm{padding:9px 14px;font-size:12.5px;border-radius:10px;}
+
+.fab{
+  position:fixed;
+  right:calc(50% - 280px + 20px);
+  bottom:calc(96px + var(--safe-bottom));
+  width:58px;height:58px;border-radius:50%;
+  background:linear-gradient(150deg,var(--gold-soft),var(--gold));
+  color:var(--on-accent);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 24px color-mix(in srgb, var(--gold) 35%, transparent), inset 0 1px 0 rgba(255,255,255,0.4);
+  cursor:pointer;z-index:40;
+  transition:transform .15s ease;
+}
+.fab svg{width:24px;height:24px;}
+.fab:active{transform:scale(0.9);}
+@media (max-width:600px){.fab{right:20px;}}
+
+/* Segmented control */
+.seg{display:flex;background:var(--bg-elev);border-radius:12px;padding:4px;border:1px solid var(--border-soft);}
+.seg button{flex:1;border:none;background:transparent;color:var(--text-dim);padding:9px 6px;border-radius:9px;font-family:var(--font-body);font-weight:700;font-size:12.5px;cursor:pointer;transition:.15s;}
+.seg button.active{background:var(--bg-elev-3);color:var(--gold-soft);box-shadow:inset 0 0 0 1px var(--border);}
+
+/* Chip / category picker */
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  display:flex;align-items:center;gap:6px;
+  padding:9px 13px;border-radius:20px;
+  background:var(--bg-elev-2);border:1px solid var(--border-soft);
+  font-size:12.5px;font-weight:600;color:var(--text-dim);cursor:pointer;
+}
+.chip.active{background:color-mix(in srgb, var(--gold) 16%, transparent);border-color:var(--gold-dim);color:var(--gold-soft);}
+
+/* Forms */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11.5px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.field input[type=text],.field input[type=number],.field input[type=date],.field input[type=password],.field select,.field textarea{
+  width:100%;background:var(--bg-elev-2);border:1px solid var(--border-soft);
+  border-radius:12px;padding:13px 14px;color:var(--text);font-family:var(--font-body);font-size:15px;
+  outline:none;transition:border-color .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold-dim);}
+.field .amount-input{font-family:var(--font-display);font-size:26px;font-weight:600;}
+.field textarea{resize:none;min-height:70px;}
+.field-row{display:flex;gap:10px;}
+.field-row .field{flex:1;}
+.helptext{font-size:11.5px;color:var(--text-faint);margin-top:6px;line-height:1.5;}
+.link-text{color:var(--gold-soft);cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+
+/* Modal / sheet */
+.overlay{
+  position:fixed;inset:0;background:rgba(6,7,6,0.66);backdrop-filter:blur(3px);
+  z-index:100;display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+.overlay.open{opacity:1;pointer-events:auto;}
+.sheet{
+  width:100%;max-width:560px;max-height:88vh;overflow-y:auto;
+  background:linear-gradient(165deg,var(--bg-elev),var(--ink));
+  border:1px solid var(--border);border-bottom:none;
+  border-radius:26px 26px 0 0;
+  padding:14px 20px calc(28px + var(--safe-bottom));
+  transform:translateY(100%);transition:transform .32s cubic-bezier(.16,1,.3,1);
+}
+.overlay.open .sheet{transform:translateY(0);}
+.sheet-handle{width:38px;height:4px;background:var(--border);border-radius:4px;margin:2px auto 14px;}
+.sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sheet-header h2{font-size:19px;}
+.sheet-close{width:32px;height:32px;border-radius:50%;background:var(--bg-elev-2);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-dim);}
+.sheet-close svg{width:14px;height:14px;}
+.sheet-actions{display:flex;gap:10px;margin-top:18px;}
+.sheet-actions .btn{flex:1;}
+
+/* Bottom nav */
+.bottomnav{
+  position:fixed;left:0;right:0;bottom:0;
+  max-width:560px;margin:0 auto;
+  padding:10px 18px calc(12px + var(--safe-bottom));
+  display:flex;justify-content:space-between;
+  background:linear-gradient(0deg, var(--ink) 60%, rgba(10,12,11,0.85));
+  border-top:1px solid var(--border-soft);
+  z-index:30;
+  backdrop-filter:blur(10px);
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  color:var(--text-faint);cursor:pointer;padding:6px 0;position:relative;
+  transition:color .15s;
+}
+.nav-item svg{width:21px;height:21px;transition:transform .15s;}
+.nav-item span{font-size:9.5px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;}
+.nav-item.active{color:var(--gold-soft);}
+.nav-item.active svg{transform:translateY(-2px);}
+.nav-item:active svg{transform:scale(0.88);}
+
+/* Chat */
+.chat-scroll{display:flex;flex-direction:column;gap:12px;padding-bottom:10px;}
+.msg{max-width:84%;padding:12px 15px;border-radius:18px;font-size:14px;line-height:1.5;white-space:pre-wrap;}
+.msg.user{align-self:flex-end;background:linear-gradient(150deg,var(--gold-soft),var(--gold));color:var(--on-accent);border-bottom-right-radius:5px;font-weight:600;}
+.msg.assistant{align-self:flex-start;background:var(--bg-elev);border:1px solid var(--border-soft);border-bottom-left-radius:5px;}
+.msg.system-note{align-self:center;font-size:11.5px;color:var(--text-faint);background:transparent;}
+.typing-dots{display:flex;gap:4px;padding:14px 15px;}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--text-faint);animation:blink 1.2s infinite ease-in-out;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+.chat-input-bar{
+  position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;
+  padding:10px 16px calc(14px + var(--safe-bottom));
+  background:linear-gradient(0deg,var(--ink) 65%,transparent);
+  display:flex;gap:8px;align-items:flex-end;z-index:35;
+}
+.chat-input-bar textarea{
+  flex:1;background:var(--bg-elev-2);border:1px solid var(--border-soft);border-radius:20px;
+  padding:12px 16px;color:var(--text);font-family:var(--font-body);font-size:14.5px;resize:none;max-height:100px;outline:none;
+}
+.chat-input-bar textarea:focus{border-color:var(--gold-dim);}
+.send-btn{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(150deg,var(--gold-soft),var(--gold));
+  display:flex;align-items:center;justify-content:center;color:var(--on-accent);border:none;cursor:pointer;
+}
+.send-btn svg{width:18px;height:18px;}
+.send-btn:disabled{opacity:.4;}
+.suggestion-row{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px;}
+.suggestion-chip{flex-shrink:0;padding:9px 14px;border-radius:16px;background:var(--bg-elev);border:1px solid var(--border-soft);font-size:12.5px;color:var(--text-dim);cursor:pointer;white-space:nowrap;}
+
+/* Insight card */
+.insight-card{border-left:2px solid var(--gold-dim);}
+.insight-date{font-size:11px;color:var(--text-faint);margin-bottom:8px;}
+.insight-body{font-size:13.5px;line-height:1.65;color:var(--text);}
+.insight-body strong{color:var(--gold-soft);}
+
+/* Toast */
+#toast-host{position:fixed;top:calc(10px + var(--safe-top));left:0;right:0;display:flex;justify-content:center;z-index:200;pointer-events:none;}
+.toast{
+  background:var(--bg-elev-3);border:1px solid var(--border);color:var(--text);
+  padding:11px 18px;border-radius:30px;font-size:13px;font-weight:600;
+  box-shadow:0 8px 22px rgba(0,0,0,0.4);
+  animation:toastIn .3s cubic-bezier(.16,1,.3,1) both;
+  display:flex;align-items:center;gap:8px;
+}
+@keyframes toastIn{from{opacity:0;transform:translateY(-14px);}to{opacity:1;transform:translateY(0);}}
+
+/* Account cards */
+.asset-row{display:flex;align-items:center;gap:12px;padding:13px 6px;border-bottom:1px solid var(--border-soft);cursor:pointer;}
+.asset-row .icon{width:40px;height:40px;border-radius:12px;background:var(--bg-elev-2);border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.asset-row .mid{flex:1;}
+.asset-row .name{font-weight:600;font-size:14px;}
+.asset-row .type{font-size:11.5px;color:var(--text-faint);text-transform:capitalize;}
+.asset-row .val{font-family:var(--font-display);font-size:16px;}
+.asset-row .val.liability{color:var(--rust);}
+
+.tag-liability{font-size:10px;background:color-mix(in srgb, var(--rust) 15%, transparent);color:var(--rust);padding:2px 7px;border-radius:8px;font-weight:700;margin-left:6px;}
+
+hr.hairline{border:none;border-top:1px solid var(--border-soft);margin:18px 0;}
+
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.theme-card{
+  position:relative;
+  background:var(--bg-elev);border:1.5px solid var(--border-soft);
+  border-radius:14px;padding:13px;cursor:pointer;
+  transition:border-color .15s, transform .12s;
+}
+.theme-card:active{transform:scale(0.97);}
+.theme-card.active{border-color:var(--gold);}
+.theme-swatches{display:flex;gap:5px;margin-bottom:9px;}
+.theme-swatches span{width:16px;height:16px;border-radius:50%;display:inline-block;border:1px solid rgba(128,128,128,0.25);}
+.theme-name{font-size:13px;font-weight:700;font-family:var(--font-body);}
+.theme-desc{font-size:10.5px;color:var(--text-faint);margin-top:2px;line-height:1.4;}
+.theme-check{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:var(--on-accent);font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+
+.settings-group{margin-bottom:24px;}
+.settings-group h3{font-size:13px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-faint);margin-bottom:12px;font-family:var(--font-body);font-weight:800;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--border-soft);}
+.settings-row .t{font-size:14px;font-weight:600;}
+.settings-row .s{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+.switch{width:44px;height:26px;border-radius:20px;background:var(--bg-elev-3);position:relative;cursor:pointer;border:1px solid var(--border-soft);flex-shrink:0;}
+.switch .knob{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--text-faint);transition:.2s;}
+.switch.on{background:color-mix(in srgb, var(--emerald) 25%, transparent);border-color:var(--emerald-dim);}
+.switch.on .knob{transform:translateX(18px);background:var(--emerald);}
+
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px;}
+.status-dot.ok{background:var(--emerald);box-shadow:0 0 8px var(--emerald);}
+.status-dot.bad{background:var(--rust);}
+
+code.inline{background:var(--bg-elev-3);padding:2px 6px;border-radius:6px;font-size:12px;}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 15l5-6 4 4 8-9" stroke="#211a08" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="4" r="2" fill="#211a08"/></svg>
+      </div>
+      <div class="brand-name">Sable<small>Private Ledger</small></div>
+    </div>
+    <div class="topbar-actions">
+      <div class="icon-btn" onclick="openInsights()" title="Insights">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
+      </div>
+      <div class="icon-btn" onclick="openSettings()" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <main id="view"></main>
+
+  <nav class="bottomnav" id="bottomnav">
+    <div class="nav-item" data-tab="dashboard" onclick="switchTab('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      <span>Home</span>
+    </div>
+    <div class="nav-item" data-tab="transactions" onclick="switchTab('transactions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      <span>Ledger</span>
+    </div>
+    <div class="nav-item" data-tab="budgets" onclick="switchTab('budgets')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      <span>Budgets</span>
+    </div>
+    <div class="nav-item" data-tab="assets" onclick="switchTab('assets')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+      <span>Assets</span>
+    </div>
+    <div class="nav-item" data-tab="assistant" onclick="switchTab('assistant')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+      <span>Ask AI</span>
+    </div>
+  </nav>
+</div>
+
+<div id="toast-host"></div>
+<div id="modal-root"></div>
+
+<script>
+/* =========================================================
+   SABLE — private, on-device finance & net worth tracker
+   All data stays in this device's localStorage. The only
+   network calls this app ever makes are to the Groq API,
+   and only when you trigger an AI feature.
+   ========================================================= */
+
+const LS_KEY = 'sable_finance_v2';
+const GROQ_MODELS = [
+  {id:'llama-3.3-70b-versatile', label:'Llama 3.3 70B — best quality'},
+  {id:'llama-3.1-8b-instant', label:'Llama 3.1 8B — fastest'},
+  {id:'gemma2-9b-it', label:'Gemma 2 9B — light'},
+  {id:'deepseek-r1-distill-llama-70b', label:'DeepSeek R1 Distill 70B — reasoning'},
+];
+const THEMES = [
+  {id:'noir', name:'Noir Gold', desc:'Ink black, warm gold, serif numerals', swatches:['#0a0c0b','#d1ab4d','#4aae82']},
+  {id:'ivory', name:'Ivory Ledger', desc:'Warm paper, brass, editorial serif', swatches:['#f6f1e6','#9c6b1f','#3f7d54']},
+  {id:'terminal', name:'Terminal', desc:'Black, phosphor green, monospace', swatches:['#000000','#3ee87a','#8dffb5']},
+  {id:'clay', name:'Soft Clay', desc:'Blush paper, terracotta, gentle serif', swatches:['#faf1ea','#c96f4a','#6f9c7d']},
+  {id:'ocean', name:'Midnight Ocean', desc:'Deep navy, silver-blue, cool serif', swatches:['#070c12','#8fb3ff','#4fd1a5']},
+];
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  DB.settings.theme = theme;
+  saveDB();
+}
+const CURRENCIES = {
+  INR:{symbol:'₹',locale:'en-IN'}, USD:{symbol:'$',locale:'en-US'},
+  EUR:{symbol:'€',locale:'de-DE'}, GBP:{symbol:'£',locale:'en-GB'},
+};
+const EXPENSE_CATS = [
+  {id:'food',name:'Food & Dining',icon:'🍽️'},
+  {id:'groceries',name:'Groceries',icon:'🛒'},
+  {id:'transport',name:'Transport',icon:'🚕'},
+  {id:'shopping',name:'Shopping',icon:'🛍️'},
+  {id:'bills',name:'Bills & Utilities',icon:'💡'},
+  {id:'rent',name:'Rent & Housing',icon:'🏠'},
+  {id:'entertainment',name:'Entertainment',icon:'🎬'},
+  {id:'health',name:'Health & Fitness',icon:'💊'},
+  {id:'travel',name:'Travel',icon:'✈️'},
+  {id:'education',name:'Education',icon:'📚'},
+  {id:'invest_out',name:'Investments',icon:'📈'},
+  {id:'insurance',name:'Insurance',icon:'🛡️'},
+  {id:'misc',name:'Miscellaneous',icon:'🔖'},
+];
+const INCOME_CATS = [
+  {id:'salary',name:'Salary',icon:'💼'},
+  {id:'business',name:'Business/Freelance',icon:'🧾'},
+  {id:'invest_in',name:'Investment Returns',icon:'📊'},
+  {id:'gifts',name:'Gifts',icon:'🎁'},
+  {id:'other_income',name:'Other Income',icon:'✨'},
+];
+const ASSET_TYPES = [
+  {id:'cash',name:'Cash',icon:'💵'},
+  {id:'bank',name:'Bank Account',icon:'🏦'},
+  {id:'fd',name:'Fixed Deposit',icon:'🔒'},
+  {id:'stocks',name:'Stocks',icon:'📈'},
+  {id:'mutualfund',name:'Mutual Funds',icon:'📊'},
+  {id:'crypto',name:'Crypto',icon:'◈'},
+  {id:'property',name:'Real Estate',icon:'🏡'},
+  {id:'vehicle',name:'Vehicle',icon:'🚗'},
+  {id:'other_asset',name:'Other Asset',icon:'💎'},
+  {id:'loan',name:'Loan (owed by you)',icon:'📉',liability:true},
+  {id:'creditcard',name:'Credit Card Debt',icon:'💳',liability:true},
+];
+
+function uid(){return 'id_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function todayISO(){return new Date().toISOString().slice(0,10);}
+
+function defaultDB(){
+  return {
+    settings:{groqApiKey:'', groqModel:'llama-3.3-70b-versatile', currency:'INR', autoCategorize:true, ownerName:'', theme:'noir'},
+    transactions:[], accounts:[], budgets:{}, chats:[], activeChatId:null, insights:[]
+  };
+}
+let DB = loadDB();
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return defaultDB();
+    const parsed = JSON.parse(raw);
+    const db = Object.assign(defaultDB(), parsed, {settings:Object.assign(defaultDB().settings, parsed.settings||{})});
+    // migrate old single-thread `chat` array (v1) into the new multi-chat model
+    if(Array.isArray(parsed.chat) && parsed.chat.length && (!db.chats || db.chats.length===0)){
+      const migrated = {id:uid(), title:autoTitleFromMessages(parsed.chat), messages:parsed.chat, createdAt:Date.now(), updatedAt:Date.now()};
+      db.chats = [migrated];
+      db.activeChatId = migrated.id;
+    }
+    delete db.chat;
+    if(!Array.isArray(db.chats)) db.chats = [];
+    return db;
+  }catch(e){ console.error('load failed',e); return defaultDB(); }
+}
+function autoTitleFromMessages(messages){
+  const firstUser = (messages||[]).find(m=>m.role==='user');
+  if(!firstUser) return 'New chat';
+  const t = firstUser.content.trim().replace(/\s+/g,' ');
+  return t.length>42 ? t.slice(0,42)+'…' : t;
+}
+function getActiveChat(){
+  let chat = DB.chats.find(c=>c.id===DB.activeChatId);
+  if(!chat){
+    chat = {id:uid(), title:'New chat', messages:[], createdAt:Date.now(), updatedAt:Date.now()};
+    DB.chats.push(chat);
+    DB.activeChatId = chat.id;
+    saveDB();
+  }
+  return chat;
+}
+function newChat(){
+  const chat = {id:uid(), title:'New chat', messages:[], createdAt:Date.now(), updatedAt:Date.now()};
+  DB.chats.push(chat);
+  DB.activeChatId = chat.id;
+  saveDB();
+  closeModal();
+  renderAssistant();
+}
+function switchChat(id){
+  DB.activeChatId = id;
+  saveDB(); closeModal(); renderAssistant();
+}
+function deleteChat(id){
+  DB.chats = DB.chats.filter(c=>c.id!==id);
+  if(DB.activeChatId===id) DB.activeChatId = DB.chats.length? DB.chats[DB.chats.length-1].id : null;
+  saveDB();
+  openChatHistory();
+}
+function openChatHistory(){
+  const sorted = DB.chats.slice().sort((a,b)=>b.updatedAt-a.updatedAt);
+  renderModal(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h2>Chat History</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+    <button class="btn btn-primary btn-block" onclick="newChat()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="width:15px;height:15px;"><path d="M12 5v14M5 12h14"/></svg>
+      New chat
+    </button>
+    <hr class="hairline"/>
+    ${sorted.length===0? `<div class="list-empty"><div class="glyph">💬</div><div class="t">No chats yet</div></div>` :
+    sorted.map(c=>{
+      const preview = c.messages.length? c.messages[c.messages.length-1].content.slice(0,60) : 'Empty chat';
+      return `<div class="txn-row" style="cursor:pointer;" onclick="switchChat('${c.id}')">
+        <div class="icon">💬</div>
+        <div class="mid">
+          <div class="cat">${escapeHtml(c.title)} ${c.id===DB.activeChatId?'<span style=\"color:var(--gold-soft);font-size:11px;\">· current</span>':''}</div>
+          <div class="note">${escapeHtml(preview)}</div>
+        </div>
+        <div class="icon-btn" style="width:32px;height:32px;flex-shrink:0;" onclick="event.stopPropagation(); deleteChat('${c.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+        </div>
+      </div>`;
+    }).join('')}
+  `);
+}
+function saveDB(){ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }
+
+function fmtMoney(n, opts={}){
+  const cur = CURRENCIES[DB.settings.currency] || CURRENCIES.INR;
+  const v = Number(n)||0;
+  const abs = Math.abs(v);
+  let str;
+  try{
+    str = new Intl.NumberFormat(cur.locale, {maximumFractionDigits: opts.decimals??0}).format(abs);
+  }catch(e){ str = abs.toFixed(opts.decimals??0); }
+  return (v<0?'-':'') + cur.symbol + str;
+}
+function findCat(id){
+  return EXPENSE_CATS.find(c=>c.id===id) || INCOME_CATS.find(c=>c.id===id) || {id:'misc',name:'Miscellaneous',icon:'🔖'};
+}
+function findAssetType(id){ return ASSET_TYPES.find(a=>a.id===id) || ASSET_TYPES[0]; }
+function toast(msg, icon=''){
+  const host = document.getElementById('toast-host');
+  const el = document.createElement('div');
+  el.className='toast';
+  el.innerHTML = (icon?icon+' ':'')+msg;
+  host.appendChild(el);
+  setTimeout(()=>{el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300);}, 2200);
+}
+
+/* ---------------- Month state ---------------- */
+let currentMonth = new Date(); currentMonth.setDate(1);
+function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function monthLabel(d){ return d.toLocaleDateString('en-US',{month:'long',year:'numeric'}); }
+function shiftMonth(delta){ currentMonth.setMonth(currentMonth.getMonth()+delta); render(); }
+function txnsInMonth(d=currentMonth){
+  const mk = monthKey(d);
+  return DB.transactions.filter(t=>t.date.slice(0,7)===mk);
+}
+
+/* ---------------- Tabs ---------------- */
+let activeTab = 'dashboard';
+function switchTab(tab){
+  activeTab = tab;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.tab===tab));
+  render();
+  document.getElementById('view').scrollTop = 0;
+}
+
+function render(){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.tab===activeTab));
+  const view = document.getElementById('view');
+  const fab = document.querySelector('.fab'); if(fab) fab.remove();
+  const chatbar = document.querySelector('.chat-input-bar'); if(chatbar) chatbar.remove();
+  document.getElementById('bottomnav').style.display='flex';
+
+  if(activeTab==='dashboard') view.innerHTML = renderDashboard();
+  else if(activeTab==='transactions') view.innerHTML = renderTransactions();
+  else if(activeTab==='budgets') view.innerHTML = renderBudgets();
+  else if(activeTab==='assets') view.innerHTML = renderAssets();
+  else if(activeTab==='assistant') renderAssistant();
+
+  if(['dashboard','transactions'].includes(activeTab)){
+    const fabEl = document.createElement('div');
+    fabEl.className='fab';
+    fabEl.onclick = ()=>openTxnModal();
+    fabEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+    document.body.appendChild(fabEl);
+  }
+  if(activeTab==='assets'){
+    const fabEl = document.createElement('div');
+    fabEl.className='fab';
+    fabEl.onclick = ()=>openAccountModal();
+    fabEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+    document.body.appendChild(fabEl);
+  }
+}
+
+/* ================= DASHBOARD ================= */
+function computeNetWorth(){
+  let assets=0, liabilities=0;
+  DB.accounts.forEach(a=>{
+    const t = findAssetType(a.type);
+    if(t.liability) liabilities += Number(a.currentValue)||0;
+    else assets += Number(a.currentValue)||0;
+  });
+  return {net:assets-liabilities, assets, liabilities};
+}
+function netWorthHistorySeries(){
+  // merge all account history snapshots by date
+  const map = {};
+  DB.accounts.forEach(a=>{
+    const t = findAssetType(a.type);
+    const sign = t.liability ? -1 : 1;
+    (a.history||[]).forEach(h=>{
+      map[h.date] = (map[h.date]||0);
+    });
+  });
+  // build cumulative: for each date present anywhere, sum latest known value of each account as-of that date
+  const dates = Object.keys(map).sort();
+  if(dates.length===0) return [];
+  return dates.map(date=>{
+    let total=0;
+    DB.accounts.forEach(a=>{
+      const t = findAssetType(a.type);
+      const sign = t.liability?-1:1;
+      const hist = (a.history||[]).filter(h=>h.date<=date).sort((x,y)=>x.date.localeCompare(y.date));
+      const val = hist.length? hist[hist.length-1].value : 0;
+      total += sign*val;
+    });
+    return {date, value: total};
+  });
+}
+function monthTotals(d=currentMonth){
+  const txns = txnsInMonth(d);
+  let income=0, expense=0;
+  txns.forEach(t=> t.type==='income' ? income+=Number(t.amount) : expense+=Number(t.amount));
+  return {income, expense};
+}
+function categoryTotals(d=currentMonth){
+  const txns = txnsInMonth(d).filter(t=>t.type==='expense');
+  const map={};
+  txns.forEach(t=>{ map[t.categoryId]=(map[t.categoryId]||0)+Number(t.amount); });
+  return Object.entries(map).map(([id,total])=>({cat:findCat(id), total})).sort((a,b)=>b.total-a.total);
+}
+
+function renderDashboard(){
+  const {net, assets, liabilities} = computeNetWorth();
+  const {income, expense} = monthTotals();
+  const cats = categoryTotals().slice(0,5);
+  const series = netWorthHistorySeries();
+  const prevMonth = new Date(currentMonth); prevMonth.setMonth(prevMonth.getMonth()-1);
+  const prevExpense = monthTotals(prevMonth).expense;
+  const delta = prevExpense>0 ? Math.round(((expense-prevExpense)/prevExpense)*100) : null;
+
+  return `
+  <div class="section-fade stagger">
+    <div class="card hero-card">
+      <div class="eyebrow">Net Worth</div>
+      <div class="net-worth-amount">${fmtMoney(net)}</div>
+      <div class="hero-sub">
+        <div class="hero-stat"><div class="lbl">Assets</div><div class="val" style="color:var(--emerald)">${fmtMoney(assets)}</div></div>
+        <div class="hero-stat"><div class="lbl">Liabilities</div><div class="val" style="color:var(--rust)">${fmtMoney(liabilities)}</div></div>
+      </div>
+      ${series.length>1 ? renderSparkline(series) : ''}
+    </div>
+
+    <div class="month-switch">
+      <div class="label">${monthLabel(currentMonth)}</div>
+      <div class="arrows">
+        <div class="arrow-btn" onclick="shiftMonth(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+        <div class="arrow-btn" onclick="shiftMonth(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+    <div class="row-grid">
+      <div class="mini-card"><div class="lbl">Income</div><div class="val income">${fmtMoney(income)}</div></div>
+      <div class="mini-card">
+        <div class="lbl">Spent</div><div class="val expense">${fmtMoney(expense)}</div>
+        ${delta!==null?`<div class="pill-delta ${delta<=0?'up':'down'}">${delta<=0?'▼':'▲'} ${Math.abs(delta)}% vs last mo.</div>`:''}
+      </div>
+    </div>
+
+    ${cats.length? `
+    <div class="card">
+      <div class="eyebrow">Top Categories</div>
+      <div class="chart-wrap">
+        ${cats.map(c=>{
+          const budget = DB.budgets[c.cat.id];
+          const pct = budget? Math.min(100, Math.round(c.total/budget*100)) : Math.min(100, Math.round(c.total/(cats[0].total||1)*100));
+          const over = budget && c.total>budget;
+          return `<div class="bar-row">
+            <div class="icon">${c.cat.icon}</div>
+            <div class="info">
+              <div class="top-line"><span class="name">${c.cat.name}</span><span class="amt">${fmtMoney(c.total)}</span></div>
+              <div class="bar-track"><div class="bar-fill ${over?'over':''}" style="width:${pct}%"></div></div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`:`
+    <div class="card"><div class="list-empty"><div class="glyph">🪶</div><div class="t">Nothing logged yet</div><div class="s">Tap + to add your first transaction this month.</div></div></div>
+    `}
+
+    <div class="card insight-card" onclick="openInsights()" style="cursor:pointer">
+      <div class="eyebrow">✨ Latest AI Insight</div>
+      ${DB.insights.length ? `<div class="insight-body">${DB.insights[DB.insights.length-1].content.split('\\n')[0]}</div><div class="helptext">Tap to see the full report →</div>`
+      : `<div class="insight-body" style="color:var(--text-faint)">No insights generated yet. Tap the ✨ icon up top, or tap here, to have Groq analyze your month.</div>`}
+    </div>
+  </div>`;
+}
+
+function renderSparkline(series){
+  const w=280,h=60,pad=4;
+  const vals = series.map(s=>s.value);
+  const min=Math.min(...vals), max=Math.max(...vals);
+  const range = (max-min)||1;
+  const pts = series.map((s,i)=>{
+    const x = pad + (i/(series.length-1))*(w-pad*2);
+    const y = h-pad - ((s.value-min)/range)*(h-pad*2);
+    return [x,y];
+  });
+  const path = pts.map((p,i)=> (i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const areaPath = path + ` L${pts[pts.length-1][0]},${h} L${pts[0][0]},${h} Z`;
+  return `<svg class="linechart" viewBox="0 0 ${w} ${h}" style="margin-top:16px;height:64px;">
+    <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d1ab4d" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#d1ab4d" stop-opacity="0"/>
+    </linearGradient></defs>
+    <path d="${areaPath}" fill="url(#sg)"/>
+    <path d="${path}" fill="none" stroke="#e8cc8e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+/* ================= TRANSACTIONS ================= */
+let txnFilter = 'all';
+function renderTransactions(){
+  const txns = txnsInMonth().filter(t=> txnFilter==='all' || t.type===txnFilter).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt-a.createdAt);
+  const grouped = {};
+  txns.forEach(t=>{ (grouped[t.date] = grouped[t.date]||[]).push(t); });
+  const dates = Object.keys(grouped).sort().reverse();
+
+  return `
+  <div class="section-fade">
+    <div class="month-switch">
+      <div class="label">${monthLabel(currentMonth)}</div>
+      <div class="arrows">
+        <div class="arrow-btn" onclick="shiftMonth(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+        <div class="arrow-btn" onclick="shiftMonth(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+    </div>
+    <div class="seg">
+      <button class="${txnFilter==='all'?'active':''}" onclick="setTxnFilter('all')">All</button>
+      <button class="${txnFilter==='expense'?'active':''}" onclick="setTxnFilter('expense')">Expenses</button>
+      <button class="${txnFilter==='income'?'active':''}" onclick="setTxnFilter('income')">Income</button>
+    </div>
+    ${dates.length===0? `<div class="list-empty"><div class="glyph">📜</div><div class="t">No transactions this month</div><div class="s">Tap the gold + button to log one.</div></div>` :
+    dates.map(date=>`
+      <div class="txn-group-label">${new Date(date+'T00:00:00').toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short'})}</div>
+      ${grouped[date].map(t=>{
+        const cat = findCat(t.categoryId);
+        return `<div class="txn-row" onclick="openTxnModal('${t.id}')">
+          <div class="icon">${cat.icon}</div>
+          <div class="mid"><div class="cat">${cat.name}</div>${t.note?`<div class="note">${escapeHtml(t.note)}</div>`:''}</div>
+          <div class="amt ${t.type}">${t.type==='income'?'+':'-'} ${fmtMoney(t.amount)}</div>
+        </div>`;
+      }).join('')}
+    `).join('')}
+  </div>`;
+}
+function setTxnFilter(f){ txnFilter=f; render(); }
+function escapeHtml(s){ const d=document.createElement('div'); d.innerText=s; return d.innerHTML; }
+
+function openTxnModal(id){
+  const existing = id ? DB.transactions.find(t=>t.id===id) : null;
+  const type = existing ? existing.type : 'expense';
+  renderModal(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h2>${existing?'Edit':'New'} Transaction</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+    <div class="seg" id="txn-type-seg">
+      <button id="seg-expense" class="${type==='expense'?'active':''}" onclick="setTxnType('expense')">Expense</button>
+      <button id="seg-income" class="${type==='income'?'active':''}" onclick="setTxnType('income')">Income</button>
+    </div>
+    <div class="field" style="margin-top:16px;">
+      <label>Amount</label>
+      <input type="number" inputmode="decimal" id="f-amount" class="amount-input" placeholder="0" value="${existing?existing.amount:''}" />
+    </div>
+    <div class="field">
+      <label>Note <span style="opacity:.5;font-weight:500;">(describe it — AI can auto-categorize)</span></label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="f-note" placeholder="e.g. Swiggy dinner with friends" value="${existing?escapeHtml(existing.note||''):''}" style="flex:1;background:var(--bg-elev-2);border:1px solid var(--border-soft);border-radius:12px;padding:13px 14px;color:var(--text);font-size:15px;"/>
+        <div class="icon-btn" style="width:46px;height:46px;flex-shrink:0;" onclick="autoCategorizeCurrent()" title="Auto-categorize with AI">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Category</label>
+      <div class="chip-grid" id="cat-chip-grid"></div>
+    </div>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="f-date" value="${existing?existing.date:todayISO()}" />
+    </div>
+    <div class="sheet-actions">
+      ${existing?`<button class="btn btn-danger" onclick="deleteTxn('${existing.id}')">Delete</button>`:''}
+      <button class="btn btn-primary btn-block" onclick="saveTxn('${existing?existing.id:''}')">Save</button>
+    </div>
+  `);
+  window._txnType = type;
+  window._txnCat = existing? existing.categoryId : (type==='expense'?EXPENSE_CATS[0].id:INCOME_CATS[0].id);
+  renderCatChips();
+}
+function setTxnType(t){
+  window._txnType = t;
+  document.getElementById('seg-expense').classList.toggle('active', t==='expense');
+  document.getElementById('seg-income').classList.toggle('active', t==='income');
+  window._txnCat = t==='expense'?EXPENSE_CATS[0].id:INCOME_CATS[0].id;
+  renderCatChips();
+}
+function renderCatChips(){
+  const cats = window._txnType==='expense'?EXPENSE_CATS:INCOME_CATS;
+  document.getElementById('cat-chip-grid').innerHTML = cats.map(c=>
+    `<div class="chip ${window._txnCat===c.id?'active':''}" onclick="pickCat('${c.id}')">${c.icon} ${c.name}</div>`
+  ).join('');
+}
+function pickCat(id){ window._txnCat = id; renderCatChips(); }
+function saveTxn(id){
+  const amount = parseFloat(document.getElementById('f-amount').value);
+  if(!amount || amount<=0){ toast('Enter a valid amount','⚠️'); return; }
+  const note = document.getElementById('f-note').value.trim();
+  const date = document.getElementById('f-date').value || todayISO();
+  if(id){
+    const t = DB.transactions.find(x=>x.id===id);
+    Object.assign(t, {amount, note, date, type:window._txnType, categoryId:window._txnCat});
+    toast('Transaction updated','✓');
+  } else {
+    DB.transactions.push({id:uid(), amount, note, date, type:window._txnType, categoryId:window._txnCat, createdAt:Date.now()});
+    toast('Transaction added','✓');
+  }
+  saveDB(); closeModal(); render();
+}
+function deleteTxn(id){
+  DB.transactions = DB.transactions.filter(t=>t.id!==id);
+  saveDB(); closeModal(); render(); toast('Deleted');
+}
+async function autoCategorizeCurrent(){
+  const note = document.getElementById('f-note').value.trim();
+  const amount = document.getElementById('f-amount').value;
+  if(!note){ toast('Add a note first','⚠️'); return; }
+  if(!DB.settings.groqApiKey){ toast('Add your Groq API key in Settings first','🔑'); return; }
+  toast('Asking AI…','🤔');
+  try{
+    const cats = (window._txnType==='expense'?EXPENSE_CATS:INCOME_CATS).map(c=>c.id).join(', ');
+    const sys = `You are a categorizer for a personal finance app. Given a short transaction note and amount, reply with ONLY the single best matching category id from this exact list: [${cats}]. No punctuation, no explanation — just the raw id.`;
+    const res = await callGroq([
+      {role:'system', content:sys},
+      {role:'user', content:`Note: "${note}"  Amount: ${amount}`}
+    ], {max_tokens:12, temperature:0.1});
+    const guess = res.trim().toLowerCase().replace(/[^a-z_]/g,'');
+    const cats2 = window._txnType==='expense'?EXPENSE_CATS:INCOME_CATS;
+    if(cats2.find(c=>c.id===guess)){
+      window._txnCat = guess; renderCatChips(); toast('Categorized: '+findCat(guess).name,'✨');
+    } else {
+      toast('AI unsure — pick manually','🤷');
+    }
+  }catch(e){ toast(e.message || 'AI request failed','⚠️'); }
+}
+
+/* ================= BUDGETS ================= */
+function renderBudgets(){
+  const cats = categoryTotals();
+  const spentMap = {}; cats.forEach(c=>spentMap[c.cat.id]=c.total);
+  return `
+  <div class="section-fade">
+    <div class="eyebrow" style="margin-top:10px;">Monthly Budgets · ${monthLabel(currentMonth)}</div>
+    <div class="helptext" style="margin-bottom:14px;">Set a monthly ceiling per category. Bars turn rust-red once you go over.</div>
+    ${EXPENSE_CATS.map(c=>{
+      const budget = DB.budgets[c.id] || 0;
+      const spent = spentMap[c.id] || 0;
+      const pct = budget? Math.min(100, Math.round(spent/budget*100)) : 0;
+      const over = budget>0 && spent>budget;
+      return `<div class="card" style="padding:16px;">
+        <div class="bar-row" style="padding:0;">
+          <div class="icon">${c.icon}</div>
+          <div class="info">
+            <div class="top-line"><span class="name">${c.name}</span><span class="amt">${fmtMoney(spent)} ${budget?('/ '+fmtMoney(budget)):''}</span></div>
+            ${budget? `<div class="bar-track"><div class="bar-fill ${over?'over':''}" style="width:${pct}%"></div></div>` : `<div class="helptext" style="margin:0;">No budget set</div>`}
+          </div>
+          <div class="icon-btn" style="width:32px;height:32px;" onclick="editBudget('${c.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg>
+          </div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function editBudget(catId){
+  const cat = findCat(catId);
+  renderModal(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h2>${cat.icon} ${cat.name} Budget</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+    <div class="field"><label>Monthly Limit</label><input type="number" id="f-budget" class="amount-input" value="${DB.budgets[catId]||''}" placeholder="0"/></div>
+    <div class="sheet-actions">
+      <button class="btn btn-danger" onclick="DB.budgets['${catId}']=0; saveDB(); closeModal(); render();">Clear</button>
+      <button class="btn btn-primary btn-block" onclick="saveBudget('${catId}')">Save</button>
+    </div>
+  `);
+}
+function saveBudget(catId){
+  const v = parseFloat(document.getElementById('f-budget').value)||0;
+  DB.budgets[catId]=v; saveDB(); closeModal(); render(); toast('Budget saved','✓');
+}
+
+/* ================= ASSETS / NET WORTH ================= */
+function renderAssets(){
+  const {net} = computeNetWorth();
+  return `
+  <div class="section-fade">
+    <div class="card hero-card" style="margin-top:6px;">
+      <div class="eyebrow">Total Net Worth</div>
+      <div class="net-worth-amount">${fmtMoney(net)}</div>
+    </div>
+    <div class="eyebrow" style="margin-top:20px;">Your Accounts</div>
+    ${DB.accounts.length===0? `<div class="list-empty"><div class="glyph">💎</div><div class="t">No accounts yet</div><div class="s">Add bank accounts, stocks, funds, property, or loans.</div></div>`:
+    DB.accounts.map(a=>{
+      const t = findAssetType(a.type);
+      return `<div class="asset-row" onclick="openAccountModal('${a.id}')">
+        <div class="icon">${t.icon}</div>
+        <div class="mid"><div class="name">${escapeHtml(a.name)}${t.liability?'<span class="tag-liability">Liability</span>':''}</div><div class="type">${t.name}</div></div>
+        <div class="val ${t.liability?'liability':''}">${t.liability?'−':''}${fmtMoney(a.currentValue)}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function openAccountModal(id){
+  const existing = id ? DB.accounts.find(a=>a.id===id) : null;
+  renderModal(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h2>${existing?'Edit':'New'} Account</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+    <div class="field"><label>Name</label><input type="text" id="f-acc-name" placeholder="e.g. HDFC Savings" value="${existing?escapeHtml(existing.name):''}"/></div>
+    <div class="field">
+      <label>Type</label>
+      <div class="chip-grid" id="acc-type-grid"></div>
+    </div>
+    <div class="field"><label>Current Value</label><input type="number" id="f-acc-value" class="amount-input" placeholder="0" value="${existing?existing.currentValue:''}"/></div>
+    <div class="helptext">Updating the value here logs a snapshot so your net-worth trend line stays accurate.</div>
+    <div class="sheet-actions">
+      ${existing?`<button class="btn btn-danger" onclick="deleteAccount('${existing.id}')">Delete</button>`:''}
+      <button class="btn btn-primary btn-block" onclick="saveAccount('${existing?existing.id:''}')">Save</button>
+    </div>
+  `);
+  window._accType = existing? existing.type : 'bank';
+  renderAccTypeChips();
+}
+function renderAccTypeChips(){
+  document.getElementById('acc-type-grid').innerHTML = ASSET_TYPES.map(t=>
+    `<div class="chip ${window._accType===t.id?'active':''}" onclick="window._accType='${t.id}'; renderAccTypeChips();">${t.icon} ${t.name}</div>`
+  ).join('');
+}
+function saveAccount(id){
+  const name = document.getElementById('f-acc-name').value.trim();
+  const value = parseFloat(document.getElementById('f-acc-value').value);
+  if(!name){ toast('Give it a name','⚠️'); return; }
+  if(isNaN(value)){ toast('Enter a value','⚠️'); return; }
+  if(id){
+    const a = DB.accounts.find(x=>x.id===id);
+    a.name=name; a.type=window._accType;
+    if(a.currentValue!==value){ a.history = a.history||[]; a.history.push({date:todayISO(), value}); }
+    a.currentValue = value;
+    toast('Account updated','✓');
+  } else {
+    DB.accounts.push({id:uid(), name, type:window._accType, currentValue:value, history:[{date:todayISO(), value}]});
+    toast('Account added','✓');
+  }
+  saveDB(); closeModal(); render();
+}
+function deleteAccount(id){
+  DB.accounts = DB.accounts.filter(a=>a.id!==id);
+  saveDB(); closeModal(); render(); toast('Deleted');
+}
+
+/* ================= AI ASSISTANT (CHAT) ================= */
+function buildFinancialContext(){
+  const {net, assets, liabilities} = computeNetWorth();
+  const {income, expense} = monthTotals();
+  const cats = categoryTotals();
+  const budgetLines = Object.entries(DB.budgets).filter(([,v])=>v>0).map(([id,v])=>{
+    const spent = cats.find(c=>c.cat.id===id)?.total || 0;
+    return `${findCat(id).name}: budget ${v}, spent ${spent}`;
+  });
+  return `Currency: ${DB.settings.currency}. Current month: ${monthLabel(currentMonth)}.
+Net worth: ${net} (assets ${assets}, liabilities ${liabilities}).
+This month income: ${income}, expenses: ${expense}.
+Spending by category this month: ${cats.map(c=>`${c.cat.name}: ${c.total}`).join('; ') || 'none logged'}.
+Budgets: ${budgetLines.join('; ') || 'none set'}.
+Accounts: ${DB.accounts.map(a=>`${a.name} (${findAssetType(a.type).name}): ${a.currentValue}`).join('; ') || 'none'}.
+Recent transactions (last 15): ${DB.transactions.slice(-15).reverse().map(t=>`${t.date} ${t.type} ${findCat(t.categoryId).name} ${t.amount}${t.note?' "'+t.note+'"':''}`).join(' | ') || 'none'}.`;
+}
+function renderAssistant(){
+  document.getElementById('bottomnav').style.display='none';
+  const view = document.getElementById('view');
+  view.style.paddingBottom = '90px';
+  const chat = getActiveChat();
+  view.innerHTML = `
+    <div class="section-fade" style="padding-top:6px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="eyebrow" style="margin:0;">${escapeHtml(chat.title)}</div>
+        <div style="display:flex;gap:8px;">
+          <div class="icon-btn" onclick="openChatHistory()" title="Chat history">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
+          </div>
+          <div class="icon-btn" onclick="newChat()" title="New chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+        </div>
+      </div>
+      ${!DB.settings.groqApiKey ? `<div class="card" style="border-color:var(--rust-dim);margin-top:12px;"><div style="font-size:13.5px;">🔑 Add your Groq API key in <span class="link-text" onclick="openSettings()">Settings</span> to start chatting.</div></div>` : ''}
+      <div class="chat-scroll" id="chat-scroll" style="margin-top:14px;">
+        ${chat.messages.length===0? `<div class="msg system-note">Ask anything — "What did I spend most on this month?", "Am I over budget?", "How's my net worth trending?"</div>`:''}
+        ${chat.messages.map(m=>`<div class="msg ${m.role}">${escapeHtml(m.content)}</div>`).join('')}
+      </div>
+    </div>
+  `;
+  const bar = document.createElement('div');
+  bar.className='chat-input-bar';
+  bar.innerHTML = `
+    <textarea id="chat-input" rows="1" placeholder="Message Sable…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+    <button class="send-btn" id="chat-send" onclick="sendChat()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+    </button>`;
+  document.body.appendChild(bar);
+  const scroll = document.getElementById('chat-scroll');
+  scroll.parentElement.scrollTop = scroll.parentElement.scrollHeight;
+  setTimeout(()=>{ view.scrollTop = view.scrollHeight; },50);
+}
+async function sendChat(){
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if(!text) return;
+  if(!DB.settings.groqApiKey){ toast('Add your Groq API key in Settings first','🔑'); return; }
+  const chat = getActiveChat();
+  const isFirstMessage = chat.messages.length===0;
+  chat.messages.push({role:'user', content:text});
+  if(isFirstMessage) chat.title = autoTitleFromMessages(chat.messages);
+  chat.updatedAt = Date.now();
+  saveDB();
+  input.value='';
+  renderAssistant();
+  const scrollEl = document.getElementById('view');
+  scrollEl.scrollTop = scrollEl.scrollHeight;
+  const chatScroll = document.getElementById('chat-scroll');
+  const typingEl = document.createElement('div');
+  typingEl.className='msg assistant'; typingEl.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
+  chatScroll.appendChild(typingEl);
+  scrollEl.scrollTop = scrollEl.scrollHeight;
+  try{
+    const sys = `You are Sable, a warm, sharp personal-finance assistant embedded in the user's private finance app. Answer using the financial context given below — be specific with numbers, keep answers concise (under ~120 words unless asked for detail), and use the app's currency. Never invent numbers not derivable from the context; if you don't have enough data, say so plainly.\n\nFINANCIAL CONTEXT:\n${buildFinancialContext()}`;
+    const history = chat.messages.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user', content:m.content}));
+    const reply = await callGroq([{role:'system', content:sys}, ...history], {max_tokens:500, temperature:0.5});
+    chat.messages.push({role:'assistant', content:reply.trim()});
+  }catch(e){
+    chat.messages.push({role:'assistant', content:'⚠️ '+(e.message||'Something went wrong reaching Groq.')});
+  }
+  chat.updatedAt = Date.now();
+  saveDB();
+  renderAssistant();
+  document.getElementById('view').scrollTop = document.getElementById('view').scrollHeight;
+}
+
+/* ================= INSIGHTS ================= */
+function openInsights(){
+  renderModal(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h2>✨ AI Insights</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+    <button class="btn btn-primary btn-block" id="gen-insight-btn" onclick="generateInsight()">Generate insight for ${monthLabel(currentMonth)}</button>
+    <hr class="hairline"/>
+    <div id="insights-list">
+      ${DB.insights.length===0? `<div class="list-empty"><div class="glyph">🌱</div><div class="t">No reports yet</div><div class="s">Generate your first one above.</div></div>` :
+      DB.insights.slice().reverse().map(ins=>`
+        <div class="card insight-card">
+          <div class="insight-date">${new Date(ins.date).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'})}</div>
+          <div class="insight-body">${escapeHtml(ins.content).replace(/\\n/g,'<br/>')}</div>
+        </div>
+      `).join('')}
+    </div>
+  `);
+}
+async function generateInsight(){
+  if(!DB.settings.groqApiKey){ toast('Add your Groq API key in Settings first','🔑'); return; }
+  const btn = document.getElementById('gen-insight-btn');
+  btn.disabled = true; btn.textContent = 'Thinking…';
+  try{
+    const sys = `You are a sharp, encouraging personal finance analyst. Given the user's financial snapshot, produce a short report with:
+1. One-sentence headline verdict on the month (bold-worthy, put it first, plain text).
+2. 3 bullet-point observations (spending patterns, budget adherence, net worth movement) — use "•" bullets.
+3. One concrete, specific recommendation for next month.
+Keep the whole thing under 140 words. Plain text only, no markdown headers.`;
+    const content = await callGroq([{role:'system',content:sys},{role:'user',content:buildFinancialContext()}], {max_tokens:400, temperature:0.6});
+    DB.insights.push({id:uid(), date:Date.now(), content:content.trim()});
+    saveDB();
+    openInsights();
+    toast('Insight ready','✨');
+  }catch(e){
+    toast(e.message||'Failed to generate insight','⚠️');
+    btn.disabled=false; btn.textContent='Generate insight for '+monthLabel(currentMonth);
+  }
+}
+
+/* ================= SETTINGS ================= */
+function openSettings(){
+  renderModal(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h2>Settings</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+
+    <div class="settings-group">
+      <h3>Groq API</h3>
+      <div class="field">
+        <label>API Key</label>
+        <input type="password" id="s-groq-key" placeholder="gsk_..." value="${DB.settings.groqApiKey||''}"/>
+        <div class="helptext">
+          <span class="status-dot ${DB.settings.groqApiKey?'ok':'bad'}"></span>${DB.settings.groqApiKey?'Key saved on this device only.':'No key set — AI features are disabled.'}
+          Get a free key at <span class="link-text" onclick="openExternal('https://console.groq.com/keys')">console.groq.com/keys</span>.
+        </div>
+      </div>
+      <div class="field">
+        <label>Model</label>
+        <select id="s-groq-model">
+          ${GROQ_MODELS.map(m=>`<option value="${m.id}" ${DB.settings.groqModel===m.id?'selected':''}>${m.label}</option>`).join('')}
+        </select>
+      </div>
+      <button class="btn btn-ghost btn-block btn-sm" onclick="testGroqConnection()">Test connection</button>
+    </div>
+
+    <div class="settings-group">
+      <h3>Appearance</h3>
+      <div class="theme-grid">
+        ${THEMES.map(t=>`
+          <div class="theme-card ${DB.settings.theme===t.id?'active':''}" onclick="selectTheme('${t.id}', this)">
+            <div class="theme-swatches">
+              ${t.swatches.map(c=>`<span style="background:${c}"></span>`).join('')}
+            </div>
+            <div class="theme-name">${t.name}</div>
+            <div class="theme-desc">${t.desc}</div>
+            ${DB.settings.theme===t.id?'<div class="theme-check">✓</div>':''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3>Preferences</h3>
+      <div class="field"><label>Currency</label>
+        <select id="s-currency">
+          ${Object.keys(CURRENCIES).map(c=>`<option value="${c}" ${DB.settings.currency===c?'selected':''}>${c} (${CURRENCIES[c].symbol})</option>`).join('')}
+        </select>
+      </div>
+      <div class="settings-row">
+        <div><div class="t">Auto-categorize on save</div><div class="s">Let AI suggest a category when you type a note</div></div>
+        <div class="switch ${DB.settings.autoCategorize?'on':''}" onclick="this.classList.toggle('on'); DB.settings.autoCategorize=this.classList.contains('on'); saveDB();"><div class="knob"></div></div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3>Your Data</h3>
+      <div class="helptext" style="margin-bottom:12px;">Everything lives only in this browser/app's local storage — nothing is uploaded anywhere except the text you explicitly send to Groq for AI features. Back up regularly, since clearing app storage will erase it.</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" style="flex:1" onclick="exportData()">Export backup</button>
+        <button class="btn btn-ghost" style="flex:1" onclick="document.getElementById('import-file').click()">Import backup</button>
+      </div>
+      <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(this.files[0])"/>
+      <button class="btn btn-danger btn-block" style="margin-top:10px;" onclick="confirmWipe()">Erase all data</button>
+    </div>
+
+    <button class="btn btn-primary btn-block" onclick="saveSettings()">Save Settings</button>
+    <div class="helptext" style="text-align:center;margin-top:14px;">Sable v1.0 · Your data, your device, your keys.</div>
+  `);
+}
+function selectTheme(id, el){
+  applyTheme(id);
+  el.parentElement.querySelectorAll('.theme-card').forEach(c=>{
+    c.classList.remove('active');
+    const chk = c.querySelector('.theme-check'); if(chk) chk.remove();
+  });
+  el.classList.add('active');
+  const check = document.createElement('div'); check.className='theme-check'; check.textContent='✓';
+  el.appendChild(check);
+}
+function openExternal(url){ window.open(url,'_blank'); }
+function saveSettings(){
+  DB.settings.groqApiKey = document.getElementById('s-groq-key').value.trim();
+  DB.settings.groqModel = document.getElementById('s-groq-model').value;
+  DB.settings.currency = document.getElementById('s-currency').value;
+  saveDB(); closeModal(); render(); toast('Settings saved','✓');
+}
+async function testGroqConnection(){
+  const key = document.getElementById('s-groq-key').value.trim();
+  const model = document.getElementById('s-groq-model').value;
+  if(!key){ toast('Enter a key first','⚠️'); return; }
+  toast('Testing…','🔌');
+  try{
+    const res = await fetch('/api/groq', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({apiKey:key, model, messages:[{role:'user',content:'Reply with the single word: OK'}], max_tokens:5})
+    });
+    if(res.ok){ toast('Connected successfully','✅'); }
+    else{ const err = await res.json().catch(()=>({})); toast('Failed: '+(err.error?.message||res.status),'❌'); }
+  }catch(e){ toast('Network error — is this running on Vercel? See README','❌'); }
+}
+function exportData(){
+  const blob = new Blob([JSON.stringify(DB, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'sable-backup-'+todayISO()+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded','💾');
+}
+function importData(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!parsed.transactions && !parsed.accounts) throw new Error('not a Sable backup');
+      DB = Object.assign(defaultDB(), parsed);
+      saveDB(); closeModal(); render();
+      toast('Backup restored','✓');
+    }catch(e){ toast('Invalid backup file','⚠️'); }
+  };
+  reader.readAsText(file);
+}
+function confirmWipe(){
+  renderModal(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h2>Erase everything?</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+    <div class="helptext">This deletes all transactions, accounts, budgets, chat history and your API key from this device. This can't be undone unless you have an exported backup.</div>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" onclick="openSettings()">Cancel</button>
+      <button class="btn btn-danger btn-block" onclick="wipeAll()">Erase everything</button>
+    </div>
+  `);
+}
+function wipeAll(){
+  localStorage.removeItem(LS_KEY);
+  DB = defaultDB();
+  closeModal(); switchTab('dashboard');
+  toast('All data erased');
+}
+
+/* ================= GROQ API ================= */
+async function callGroq(messages, opts={}){
+  if(!DB.settings.groqApiKey) throw new Error('No Groq API key set');
+  const res = await fetch('/api/groq', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      apiKey: DB.settings.groqApiKey,
+      model: DB.settings.groqModel || 'llama-3.3-70b-versatile',
+      messages,
+      max_tokens: opts.max_tokens||400,
+      temperature: opts.temperature ?? 0.5,
+    })
+  });
+  if(!res.ok){
+    let msg = 'Groq request failed ('+res.status+')';
+    try{ const j = await res.json(); if(j.error?.message) msg = j.error.message; }catch(e){}
+    throw new Error(msg);
+  }
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || '';
+}
+
+/* ================= MODAL ================= */
+function renderModal(innerHtml){
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `<div class="overlay" id="overlay" onclick="if(event.target===this) closeModal()"><div class="sheet">${innerHtml}</div></div>`;
+  requestAnimationFrame(()=> document.getElementById('overlay').classList.add('open'));
+}
+function closeModal(){
+  const ov = document.getElementById('overlay');
+  if(!ov) return;
+  ov.classList.remove('open');
+  setTimeout(()=>{ document.getElementById('modal-root').innerHTML=''; }, 280);
+}
+
+/* ================= INIT ================= */
+document.documentElement.setAttribute('data-theme', DB.settings.theme || 'noir');
+switchTab('dashboard');
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>

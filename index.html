@@ -563,10 +563,10 @@ code.inline{background:var(--bg-elev-3);padding:2px 6px;border-radius:6px;font-s
 
 const LS_KEY = 'sable_finance_v2';
 const GROQ_MODELS = [
-  {id:'llama-3.3-70b-versatile', label:'Llama 3.3 70B — best quality'},
-  {id:'llama-3.1-8b-instant', label:'Llama 3.1 8B — fastest'},
-  {id:'gemma2-9b-it', label:'Gemma 2 9B — light'},
-  {id:'deepseek-r1-distill-llama-70b', label:'DeepSeek R1 Distill 70B — reasoning'},
+  {id:'openai/gpt-oss-120b', label:'GPT-OSS 120B — best quality'},
+  {id:'openai/gpt-oss-20b', label:'GPT-OSS 20B — fastest'},
+  {id:'qwen/qwen3-32b', label:'Qwen 3 32B — reasoning'},
+  {id:'groq/compound-mini', label:'Groq Compound Mini — can browse the web'},
 ];
 const THEMES = [
   {id:'noir', name:'Noir Gold', desc:'Ink black, warm gold, serif numerals', swatches:['#0a0c0b','#d1ab4d','#4aae82']},
@@ -625,7 +625,7 @@ function todayISO(){return new Date().toISOString().slice(0,10);}
 
 function defaultDB(){
   return {
-    settings:{groqApiKey:'', groqModel:'llama-3.3-70b-versatile', currency:'INR', autoCategorize:true, ownerName:'', theme:'noir'},
+    settings:{groqApiKey:'', groqModel:'openai/gpt-oss-120b', currency:'INR', autoCategorize:true, ownerName:'', theme:'noir'},
     transactions:[], accounts:[], budgets:{}, chats:[], activeChatId:null, insights:[]
   };
 }
@@ -1440,7 +1440,7 @@ async function callGroq(messages, opts={}){
     headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
       apiKey: DB.settings.groqApiKey,
-      model: DB.settings.groqModel || 'llama-3.3-70b-versatile',
+      model: DB.settings.groqModel || 'openai/gpt-oss-120b',
       messages,
       max_tokens: opts.max_tokens||400,
       temperature: opts.temperature ?? 0.5,

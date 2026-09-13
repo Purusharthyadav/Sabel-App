@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-<title>Sable — Private Ledger</title>
+<title>Sable PY — Private Ledger</title>
 <meta name="theme-color" content="#0b0d0c" />
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icons/icon-192.png" />
@@ -422,8 +422,8 @@ svg.linechart{width:100%;height:120px;overflow:visible;}
 .typing-dots span:nth-child(3){animation-delay:.4s;}
 @keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
 .chat-input-bar{
-  position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;
-  padding:10px 16px calc(14px + var(--safe-bottom));
+  position:fixed;left:0;right:0;bottom:calc(70px + var(--safe-bottom));max-width:560px;margin:0 auto;
+  padding:10px 16px 10px;
   background:linear-gradient(0deg,var(--ink) 65%,transparent);
   display:flex;gap:8px;align-items:flex-end;z-index:35;
 }
@@ -512,7 +512,7 @@ code.inline{background:var(--bg-elev-3);padding:2px 6px;border-radius:6px;font-s
       <div class="brand-mark">
         <svg viewBox="0 0 24 24" fill="none"><path d="M3 15l5-6 4 4 8-9" stroke="#211a08" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="20" cy="4" r="2" fill="#211a08"/></svg>
       </div>
-      <div class="brand-name">Sable<small>Private Ledger</small></div>
+      <div class="brand-name">Sable PY<small>Private Ledger</small></div>
     </div>
     <div class="topbar-actions">
       <div class="icon-btn" onclick="openInsights()" title="Insights">
@@ -606,6 +606,21 @@ const INCOME_CATS = [
   {id:'gifts',name:'Gifts',icon:'🎁'},
   {id:'other_income',name:'Other Income',icon:'✨'},
 ];
+function allExpenseCats(){ return EXPENSE_CATS.concat(DB.customCategories.filter(c=>c.type==='expense')); }
+function allIncomeCats(){ return INCOME_CATS.concat(DB.customCategories.filter(c=>c.type==='income')); }
+function addCustomCategory(name, icon, type){
+  const id = 'custom_'+uid();
+  DB.customCategories.push({id, name, icon: icon||'🏷️', type});
+  saveDB();
+  return id;
+}
+function removeCustomCategory(id){
+  DB.customCategories = DB.customCategories.filter(c=>c.id!==id);
+  delete DB.budgets[id];
+  saveDB();
+  openSettings();
+  toast('Category removed');
+}
 const ASSET_TYPES = [
   {id:'cash',name:'Cash',icon:'💵'},
   {id:'bank',name:'Bank Account',icon:'🏦'},
@@ -625,8 +640,9 @@ function todayISO(){return new Date().toISOString().slice(0,10);}
 
 function defaultDB(){
   return {
-    settings:{groqApiKey:'', groqModel:'openai/gpt-oss-120b', currency:'INR', autoCategorize:true, ownerName:'', theme:'noir'},
-    transactions:[], accounts:[], budgets:{}, chats:[], activeChatId:null, insights:[]
+    settings:{groqApiKey:'', groqModel:'openai/gpt-oss-120b', currency:'INR', autoCategorize:true, ownerName:'', theme:'noir',
+      incomeReminder:{enabled:false, day:1, label:'Salary'}, incomeReminderDismissed:''},
+    transactions:[], accounts:[], budgets:{}, chats:[], activeChatId:null, insights:[], customCategories:[]
   };
 }
 let DB = loadDB();
@@ -720,7 +736,7 @@ function fmtMoney(n, opts={}){
   return (v<0?'-':'') + cur.symbol + str;
 }
 function findCat(id){
-  return EXPENSE_CATS.find(c=>c.id===id) || INCOME_CATS.find(c=>c.id===id) || {id:'misc',name:'Miscellaneous',icon:'🔖'};
+  return EXPENSE_CATS.find(c=>c.id===id) || INCOME_CATS.find(c=>c.id===id) || DB.customCategories.find(c=>c.id===id) || {id:'misc',name:'Miscellaneous',icon:'🔖'};
 }
 function findAssetType(id){ return ASSET_TYPES.find(a=>a.id===id) || ASSET_TYPES[0]; }
 function toast(msg, icon=''){
@@ -828,6 +844,29 @@ function categoryTotals(d=currentMonth){
   return Object.entries(map).map(([id,total])=>({cat:findCat(id), total})).sort((a,b)=>b.total-a.total);
 }
 
+function shouldShowIncomeReminder(){
+  const r = DB.settings.incomeReminder;
+  if(!r || !r.enabled) return false;
+  const now = new Date();
+  const thisMonthKey = monthKey(now);
+  if(DB.settings.incomeReminderDismissed === thisMonthKey) return false;
+  if(now.getDate() < (r.day||1)) return false;
+  const hasIncomeThisMonth = DB.transactions.some(t=>t.type==='income' && t.date.slice(0,7)===thisMonthKey);
+  return !hasIncomeThisMonth;
+}
+function dismissIncomeReminder(){
+  DB.settings.incomeReminderDismissed = monthKey(new Date());
+  saveDB();
+  render();
+}
+function logReminderIncome(){
+  openTxnModal();
+  setTxnType('income');
+  const r = DB.settings.incomeReminder;
+  const match = allIncomeCats().find(c=>c.name.toLowerCase()===((r&&r.label)||'salary').toLowerCase());
+  window._txnCat = match ? match.id : allIncomeCats()[0].id;
+  renderCatChips();
+}
 function renderDashboard(){
   const {net, assets, liabilities} = computeNetWorth();
   const {income, expense} = monthTotals();
@@ -836,9 +875,20 @@ function renderDashboard(){
   const prevMonth = new Date(currentMonth); prevMonth.setMonth(prevMonth.getMonth()-1);
   const prevExpense = monthTotals(prevMonth).expense;
   const delta = prevExpense>0 ? Math.round(((expense-prevExpense)/prevExpense)*100) : null;
+  const showReminder = shouldShowIncomeReminder();
 
   return `
   <div class="section-fade stagger">
+    ${showReminder ? `
+    <div class="card" style="border-color:var(--gold-dim);display:flex;align-items:center;gap:12px;margin-top:6px;">
+      <div style="font-size:22px;">💰</div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:13.5px;">Log your ${escapeHtml(DB.settings.incomeReminder.label||'income')} for ${monthLabel(currentMonth)}?</div>
+        <div class="helptext" style="margin:2px 0 0;">No income logged yet this month.</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="logReminderIncome()">Log it</button>
+      <div class="icon-btn" style="width:30px;height:30px;flex-shrink:0;" onclick="dismissIncomeReminder()">✕</div>
+    </div>` : ''}
     <div class="card hero-card">
       <div class="eyebrow">Net Worth</div>
       <div class="net-worth-amount">${fmtMoney(net)}</div>
@@ -875,7 +925,7 @@ function renderDashboard(){
           return `<div class="bar-row">
             <div class="icon">${c.cat.icon}</div>
             <div class="info">
-              <div class="top-line"><span class="name">${c.cat.name}</span><span class="amt">${fmtMoney(c.total)}</span></div>
+              <div class="top-line"><span class="name">${escapeHtml(c.cat.name)}</span><span class="amt">${fmtMoney(c.total)}</span></div>
               <div class="bar-track"><div class="bar-fill ${over?'over':''}" style="width:${pct}%"></div></div>
             </div>
           </div>`;
@@ -887,7 +937,7 @@ function renderDashboard(){
 
     <div class="card insight-card" onclick="openInsights()" style="cursor:pointer">
       <div class="eyebrow">✨ Latest AI Insight</div>
-      ${DB.insights.length ? `<div class="insight-body">${DB.insights[DB.insights.length-1].content.split('\\n')[0]}</div><div class="helptext">Tap to see the full report →</div>`
+      ${DB.insights.length ? `<div class="insight-body">${mdToHtml(DB.insights[DB.insights.length-1].content.split(/\n/)[0])}</div><div class="helptext">Tap to see the full report →</div>`
       : `<div class="insight-body" style="color:var(--text-faint)">No insights generated yet. Tap the ✨ icon up top, or tap here, to have Groq analyze your month.</div>`}
     </div>
   </div>`;
@@ -944,7 +994,7 @@ function renderTransactions(){
         const cat = findCat(t.categoryId);
         return `<div class="txn-row" onclick="openTxnModal('${t.id}')">
           <div class="icon">${cat.icon}</div>
-          <div class="mid"><div class="cat">${cat.name}</div>${t.note?`<div class="note">${escapeHtml(t.note)}</div>`:''}</div>
+          <div class="mid"><div class="cat">${escapeHtml(cat.name)}</div>${t.note?`<div class="note">${escapeHtml(t.note)}</div>`:''}</div>
           <div class="amt ${t.type}">${t.type==='income'?'+':'-'} ${fmtMoney(t.amount)}</div>
         </div>`;
       }).join('')}
@@ -953,10 +1003,32 @@ function renderTransactions(){
 }
 function setTxnFilter(f){ txnFilter=f; render(); }
 function escapeHtml(s){ const d=document.createElement('div'); d.innerText=s; return d.innerHTML; }
+function escapeAttr(s){ return escapeHtml(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function mdToHtml(raw){
+  let s = escapeHtml(raw||'');
+  // headers -> bold line (keeps them readable without full heading styles in a chat bubble)
+  s = s.replace(/^#{1,6}\s+(.*)$/gm, '<strong>$1</strong>');
+  // bold **text**
+  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  // italics *text* (single asterisks not part of a bullet marker)
+  s = s.replace(/(^|[^*\w])\*([^*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+  // bullet lines: -, *, • at line start
+  s = s.replace(/^[\-\*•]\s+(.*)$/gm, '§LI§$1§/LI§');
+  // group consecutive bullet lines into a <ul>
+  s = s.replace(/(§LI§.*§\/LI§)(\n§LI§.*§\/LI§)*/g, (m)=>{
+    const items = m.split('\n').map(line=>line.replace(/^§LI§(.*)§\/LI§$/,'<li>$1</li>')).join('');
+    return `<ul style="margin:4px 0 4px 18px;padding:0;">${items}</ul>`;
+  });
+  s = s.replace(/\n/g, '<br>');
+  return s;
+}
 
-function openTxnModal(id){
+function openTxnModal(id, draft){
   const existing = id ? DB.transactions.find(t=>t.id===id) : null;
-  const type = existing ? existing.type : 'expense';
+  const type = draft ? draft.type : (existing ? existing.type : 'expense');
+  const amountVal = draft ? draft.amount : (existing?existing.amount:'');
+  const noteVal = escapeAttr(draft ? (draft.note||'') : (existing?(existing.note||''):''));
+  const dateVal = draft ? draft.date : (existing?existing.date:todayISO());
   renderModal(`
     <div class="sheet-handle"></div>
     <div class="sheet-header"><h2>${existing?'Edit':'New'} Transaction</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
@@ -964,14 +1036,17 @@ function openTxnModal(id){
       <button id="seg-expense" class="${type==='expense'?'active':''}" onclick="setTxnType('expense')">Expense</button>
       <button id="seg-income" class="${type==='income'?'active':''}" onclick="setTxnType('income')">Income</button>
     </div>
+    <button class="btn btn-ghost btn-block btn-sm" id="voice-btn" onclick="startVoiceCapture()" style="margin-top:10px;">
+      🎤 Speak to fill this in
+    </button>
     <div class="field" style="margin-top:16px;">
       <label>Amount</label>
-      <input type="number" inputmode="decimal" id="f-amount" class="amount-input" placeholder="0" value="${existing?existing.amount:''}" />
+      <input type="number" inputmode="decimal" id="f-amount" class="amount-input" placeholder="0" value="${amountVal}" />
     </div>
     <div class="field">
       <label>Note <span style="opacity:.5;font-weight:500;">(describe it — AI can auto-categorize)</span></label>
       <div style="display:flex;gap:8px;">
-        <input type="text" id="f-note" placeholder="e.g. Swiggy dinner with friends" value="${existing?escapeHtml(existing.note||''):''}" style="flex:1;background:var(--bg-elev-2);border:1px solid var(--border-soft);border-radius:12px;padding:13px 14px;color:var(--text);font-size:15px;"/>
+        <input type="text" id="f-note" placeholder="e.g. Swiggy dinner with friends" value="${noteVal}" style="flex:1;background:var(--bg-elev-2);border:1px solid var(--border-soft);border-radius:12px;padding:13px 14px;color:var(--text);font-size:15px;"/>
         <div class="icon-btn" style="width:46px;height:46px;flex-shrink:0;" onclick="autoCategorizeCurrent()" title="Auto-categorize with AI">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
         </div>
@@ -983,31 +1058,75 @@ function openTxnModal(id){
     </div>
     <div class="field">
       <label>Date</label>
-      <input type="date" id="f-date" value="${existing?existing.date:todayISO()}" />
+      <input type="date" id="f-date" value="${dateVal}" />
     </div>
     <div class="sheet-actions">
       ${existing?`<button class="btn btn-danger" onclick="deleteTxn('${existing.id}')">Delete</button>`:''}
       <button class="btn btn-primary btn-block" onclick="saveTxn('${existing?existing.id:''}')">Save</button>
     </div>
   `);
+  window._editingTxnId = existing ? existing.id : null;
   window._txnType = type;
-  window._txnCat = existing? existing.categoryId : (type==='expense'?EXPENSE_CATS[0].id:INCOME_CATS[0].id);
+  window._txnCat = draft ? draft.categoryId : (existing? existing.categoryId : (type==='expense'?allExpenseCats()[0].id:allIncomeCats()[0].id));
   renderCatChips();
 }
 function setTxnType(t){
   window._txnType = t;
   document.getElementById('seg-expense').classList.toggle('active', t==='expense');
   document.getElementById('seg-income').classList.toggle('active', t==='income');
-  window._txnCat = t==='expense'?EXPENSE_CATS[0].id:INCOME_CATS[0].id;
+  window._txnCat = t==='expense'?allExpenseCats()[0].id:allIncomeCats()[0].id;
   renderCatChips();
 }
 function renderCatChips(){
-  const cats = window._txnType==='expense'?EXPENSE_CATS:INCOME_CATS;
+  const cats = window._txnType==='expense'?allExpenseCats():allIncomeCats();
   document.getElementById('cat-chip-grid').innerHTML = cats.map(c=>
-    `<div class="chip ${window._txnCat===c.id?'active':''}" onclick="pickCat('${c.id}')">${c.icon} ${c.name}</div>`
-  ).join('');
+    `<div class="chip ${window._txnCat===c.id?'active':''}" onclick="pickCat('${c.id}')">${c.icon} ${escapeHtml(c.name)}</div>`
+  ).join('') + `<div class="chip" style="border-style:dashed;" onclick="openAddCategoryPrompt()">➕ New</div>`;
 }
 function pickCat(id){ window._txnCat = id; renderCatChips(); }
+function openAddCategoryPrompt(){
+  window._txnDraft = {
+    type: window._txnType,
+    categoryId: window._txnCat,
+    amount: document.getElementById('f-amount')?.value || '',
+    note: document.getElementById('f-note')?.value || '',
+    date: document.getElementById('f-date')?.value || todayISO(),
+  };
+  renderModal(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h2>New Category</h2><div class="sheet-close" onclick="cancelAddCategory()">✕</div></div>
+    <div class="helptext" style="margin-bottom:14px;">This adds a ${window._txnType==='expense'?'expense':'income'} category you can reuse for any future transaction and budget.</div>
+    <div class="field-row">
+      <div class="field" style="flex:0 0 84px;">
+        <label>Icon</label>
+        <input type="text" id="f-cat-icon" maxlength="4" value="🏷️" style="text-align:center;font-size:22px;"/>
+      </div>
+      <div class="field" style="flex:1;">
+        <label>Name</label>
+        <input type="text" id="f-cat-name" placeholder="e.g. Pet Care" />
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" onclick="cancelAddCategory()">Cancel</button>
+      <button class="btn btn-primary btn-block" onclick="saveCustomCategoryAndReturn()">Add category</button>
+    </div>
+  `);
+  setTimeout(()=>document.getElementById('f-cat-name')?.focus(), 100);
+}
+function cancelAddCategory(){
+  const draft = window._txnDraft;
+  openTxnModal(window._editingTxnId, draft);
+}
+function saveCustomCategoryAndReturn(){
+  const name = document.getElementById('f-cat-name').value.trim();
+  const icon = document.getElementById('f-cat-icon').value.trim() || '🏷️';
+  if(!name){ toast('Give it a name','⚠️'); return; }
+  const draft = window._txnDraft;
+  const id = addCustomCategory(name, icon, draft.type);
+  draft.categoryId = id;
+  toast('Category added','✓');
+  openTxnModal(window._editingTxnId, draft);
+}
 function saveTxn(id){
   const amount = parseFloat(document.getElementById('f-amount').value);
   if(!amount || amount<=0){ toast('Enter a valid amount','⚠️'); return; }
@@ -1034,20 +1153,92 @@ async function autoCategorizeCurrent(){
   if(!DB.settings.groqApiKey){ toast('Add your Groq API key in Settings first','🔑'); return; }
   toast('Asking AI…','🤔');
   try{
-    const cats = (window._txnType==='expense'?EXPENSE_CATS:INCOME_CATS).map(c=>c.id).join(', ');
+    const cats = (window._txnType==='expense'?allExpenseCats():allIncomeCats()).map(c=>c.id).join(', ');
     const sys = `You are a categorizer for a personal finance app. Given a short transaction note and amount, reply with ONLY the single best matching category id from this exact list: [${cats}]. No punctuation, no explanation — just the raw id.`;
     const res = await callGroq([
       {role:'system', content:sys},
       {role:'user', content:`Note: "${note}"  Amount: ${amount}`}
-    ], {max_tokens:12, temperature:0.1});
-    const guess = res.trim().toLowerCase().replace(/[^a-z_]/g,'');
-    const cats2 = window._txnType==='expense'?EXPENSE_CATS:INCOME_CATS;
+    ], {max_tokens:16, temperature:0.1});
+    const guess = res.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+    const cats2 = window._txnType==='expense'?allExpenseCats():allIncomeCats();
     if(cats2.find(c=>c.id===guess)){
       window._txnCat = guess; renderCatChips(); toast('Categorized: '+findCat(guess).name,'✨');
     } else {
       toast('AI unsure — pick manually','🤷');
     }
   }catch(e){ toast(e.message || 'AI request failed','⚠️'); }
+}
+
+/* ================= VOICE CAPTURE ================= */
+function startVoiceCapture(){
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById('voice-btn');
+  if(!SpeechRec){
+    toast("Voice input isn't supported in this browser","🎤");
+    return;
+  }
+  if(!DB.settings.groqApiKey){ toast('Add your Groq API key in Settings first','🔑'); return; }
+
+  let recognition;
+  try{ recognition = new SpeechRec(); }
+  catch(e){ toast('Could not start voice input','⚠️'); return; }
+
+  recognition.lang = 'en-IN';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  const resetBtn = ()=>{ if(btn){ btn.textContent='🎤 Speak to fill this in'; btn.disabled=false; } };
+  if(btn){ btn.textContent='🎙️ Listening… speak now'; btn.disabled = true; }
+
+  recognition.onerror = (e)=>{
+    let msg = 'Voice input failed';
+    if(e.error==='not-allowed' || e.error==='service-not-allowed') msg = 'Microphone permission denied — check site/app permissions';
+    else if(e.error==='no-speech') msg = "Didn't catch that — try again";
+    else if(e.error==='network') msg = 'Voice recognition needs an internet connection';
+    else if(e.error==='aborted') { resetBtn(); return; }
+    toast(msg,'⚠️');
+    resetBtn();
+  };
+  recognition.onresult = async (e)=>{
+    const transcript = e.results[0][0].transcript;
+    if(btn) btn.textContent = '✨ Understanding…';
+    await parseVoiceTransaction(transcript);
+    resetBtn();
+  };
+  recognition.onend = resetBtn;
+
+  try{ recognition.start(); }
+  catch(err){ toast('Could not access the microphone','⚠️'); resetBtn(); }
+}
+async function parseVoiceTransaction(transcript){
+  try{
+    const expenseIds = allExpenseCats().map(c=>c.id).join(', ');
+    const incomeIds = allIncomeCats().map(c=>c.id).join(', ');
+    const sys = `You extract structured transaction data from one spoken sentence for a personal finance app. Reply with STRICT JSON only — no markdown, no explanation, no code fences — matching exactly this shape:
+{"amount": <number>, "type": "expense" or "income", "category": "<one id from the matching list below>", "note": "<short 3-6 word description>"}
+Expense category ids: [${expenseIds}]
+Income category ids: [${incomeIds}]
+Default to "type":"expense" unless the sentence clearly describes money received (salary, gift received, refund, etc). Pick whichever category id best matches. If no amount was said, use 0.`;
+    const raw = await callGroq([{role:'system',content:sys},{role:'user',content:transcript}], {max_tokens:150, temperature:0.1});
+    let data;
+    try{ data = JSON.parse(raw.trim().replace(/^```(json)?\s*|\s*```$/g,'')); }
+    catch(e){ toast('Heard: "'+transcript+'" — but couldn\'t parse it, fill manually','🤷'); return; }
+
+    const type = data.type==='income' ? 'income' : 'expense';
+    if(window._txnType !== type) setTxnType(type);
+    const validCats = type==='expense'?allExpenseCats():allIncomeCats();
+    window._txnCat = validCats.find(c=>c.id===data.category) ? data.category : validCats[0].id;
+    renderCatChips();
+
+    const amountField = document.getElementById('f-amount');
+    if(amountField && Number(data.amount)>0) amountField.value = data.amount;
+    const noteField = document.getElementById('f-note');
+    if(noteField) noteField.value = data.note || transcript.slice(0,60);
+
+    toast('Filled in from voice — check and save','✨');
+  }catch(e){
+    toast(e.message || 'Voice parsing failed','⚠️');
+  }
 }
 
 /* ================= BUDGETS ================= */
@@ -1058,7 +1249,8 @@ function renderBudgets(){
   <div class="section-fade">
     <div class="eyebrow" style="margin-top:10px;">Monthly Budgets · ${monthLabel(currentMonth)}</div>
     <div class="helptext" style="margin-bottom:14px;">Set a monthly ceiling per category. Bars turn rust-red once you go over.</div>
-    ${EXPENSE_CATS.map(c=>{
+    <button class="btn btn-ghost btn-block" style="margin-bottom:14px;border-style:dashed;" onclick="openAddCategoryFromBudgets()">➕ New Category</button>
+    ${allExpenseCats().map(c=>{
       const budget = DB.budgets[c.id] || 0;
       const spent = spentMap[c.id] || 0;
       const pct = budget? Math.min(100, Math.round(spent/budget*100)) : 0;
@@ -1067,7 +1259,7 @@ function renderBudgets(){
         <div class="bar-row" style="padding:0;">
           <div class="icon">${c.icon}</div>
           <div class="info">
-            <div class="top-line"><span class="name">${c.name}</span><span class="amt">${fmtMoney(spent)} ${budget?('/ '+fmtMoney(budget)):''}</span></div>
+            <div class="top-line"><span class="name">${escapeHtml(c.name)}</span><span class="amt">${fmtMoney(spent)} ${budget?('/ '+fmtMoney(budget)):''}</span></div>
             ${budget? `<div class="bar-track"><div class="bar-fill ${over?'over':''}" style="width:${pct}%"></div></div>` : `<div class="helptext" style="margin:0;">No budget set</div>`}
           </div>
           <div class="icon-btn" style="width:32px;height:32px;" onclick="editBudget('${c.id}')">
@@ -1082,7 +1274,7 @@ function editBudget(catId){
   const cat = findCat(catId);
   renderModal(`
     <div class="sheet-handle"></div>
-    <div class="sheet-header"><h2>${cat.icon} ${cat.name} Budget</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+    <div class="sheet-header"><h2>${cat.icon} ${escapeHtml(cat.name)} Budget</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
     <div class="field"><label>Monthly Limit</label><input type="number" id="f-budget" class="amount-input" value="${DB.budgets[catId]||''}" placeholder="0"/></div>
     <div class="sheet-actions">
       <button class="btn btn-danger" onclick="DB.budgets['${catId}']=0; saveDB(); closeModal(); render();">Clear</button>
@@ -1091,8 +1283,40 @@ function editBudget(catId){
   `);
 }
 function saveBudget(catId){
-  const v = parseFloat(document.getElementById('f-budget').value)||0;
+  const v = Math.max(0, parseFloat(document.getElementById('f-budget').value)||0);
   DB.budgets[catId]=v; saveDB(); closeModal(); render(); toast('Budget saved','✓');
+}
+function openAddCategoryFromBudgets(){
+  renderModal(`
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h2>New Category</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+    <div class="helptext" style="margin-bottom:14px;">Add a new expense category so you can set a budget for it.</div>
+    <div class="field-row">
+      <div class="field" style="flex:0 0 84px;">
+        <label>Icon</label>
+        <input type="text" id="f-cat-icon" maxlength="4" value="🏷️" style="text-align:center;font-size:22px;"/>
+      </div>
+      <div class="field" style="flex:1;">
+        <label>Name</label>
+        <input type="text" id="f-cat-name" placeholder="e.g. Pet Care" />
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-block" onclick="saveCategoryFromBudgets()">Add category</button>
+    </div>
+  `);
+  setTimeout(()=>document.getElementById('f-cat-name')?.focus(), 100);
+}
+function saveCategoryFromBudgets(){
+  const name = document.getElementById('f-cat-name').value.trim();
+  const icon = document.getElementById('f-cat-icon').value.trim() || '🏷️';
+  if(!name){ toast('Give it a name','⚠️'); return; }
+  const id = addCustomCategory(name, icon, 'expense');
+  toast('Category added','✓');
+  closeModal();
+  render();
+  editBudget(id);
 }
 
 /* ================= ASSETS / NET WORTH ================= */
@@ -1121,7 +1345,7 @@ function openAccountModal(id){
   renderModal(`
     <div class="sheet-handle"></div>
     <div class="sheet-header"><h2>${existing?'Edit':'New'} Account</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
-    <div class="field"><label>Name</label><input type="text" id="f-acc-name" placeholder="e.g. HDFC Savings" value="${existing?escapeHtml(existing.name):''}"/></div>
+    <div class="field"><label>Name</label><input type="text" id="f-acc-name" placeholder="e.g. HDFC Savings" value="${existing?escapeAttr(existing.name):''}"/></div>
     <div class="field">
       <label>Type</label>
       <div class="chip-grid" id="acc-type-grid"></div>
@@ -1181,9 +1405,8 @@ Accounts: ${DB.accounts.map(a=>`${a.name} (${findAssetType(a.type).name}): ${a.c
 Recent transactions (last 15): ${DB.transactions.slice(-15).reverse().map(t=>`${t.date} ${t.type} ${findCat(t.categoryId).name} ${t.amount}${t.note?' "'+t.note+'"':''}`).join(' | ') || 'none'}.`;
 }
 function renderAssistant(){
-  document.getElementById('bottomnav').style.display='none';
   const view = document.getElementById('view');
-  view.style.paddingBottom = '90px';
+  view.style.paddingBottom = '170px';
   const chat = getActiveChat();
   view.innerHTML = `
     <div class="section-fade" style="padding-top:6px;">
@@ -1201,7 +1424,7 @@ function renderAssistant(){
       ${!DB.settings.groqApiKey ? `<div class="card" style="border-color:var(--rust-dim);margin-top:12px;"><div style="font-size:13.5px;">🔑 Add your Groq API key in <span class="link-text" onclick="openSettings()">Settings</span> to start chatting.</div></div>` : ''}
       <div class="chat-scroll" id="chat-scroll" style="margin-top:14px;">
         ${chat.messages.length===0? `<div class="msg system-note">Ask anything — "What did I spend most on this month?", "Am I over budget?", "How's my net worth trending?"</div>`:''}
-        ${chat.messages.map(m=>`<div class="msg ${m.role}">${escapeHtml(m.content)}</div>`).join('')}
+        ${chat.messages.map(m=>`<div class="msg ${m.role}">${m.role==='assistant'?mdToHtml(m.content):escapeHtml(m.content)}</div>`).join('')}
       </div>
     </div>
   `;
@@ -1238,7 +1461,7 @@ async function sendChat(){
   chatScroll.appendChild(typingEl);
   scrollEl.scrollTop = scrollEl.scrollHeight;
   try{
-    const sys = `You are Sable, a warm, sharp personal-finance assistant embedded in the user's private finance app. Answer using the financial context given below — be specific with numbers, keep answers concise (under ~120 words unless asked for detail), and use the app's currency. Never invent numbers not derivable from the context; if you don't have enough data, say so plainly.\n\nFINANCIAL CONTEXT:\n${buildFinancialContext()}`;
+    const sys = `You are Sable, a warm, sharp personal-finance assistant embedded in the user's private finance app. Answer using the financial context given below — be specific with numbers, keep answers concise (under ~120 words unless asked for detail), and use the app's currency. Never invent numbers not derivable from the context; if you don't have enough data, say so plainly. Formatting: plain chat style only — use **bold** sparingly for key numbers and "-" for bullet lists if helpful, but never use markdown headers (#, ##) or code blocks.\n\nFINANCIAL CONTEXT:\n${buildFinancialContext()}`;
     const history = chat.messages.slice(-10).map(m=>({role:m.role==='assistant'?'assistant':'user', content:m.content}));
     const reply = await callGroq([{role:'system', content:sys}, ...history], {max_tokens:500, temperature:0.5});
     chat.messages.push({role:'assistant', content:reply.trim()});
@@ -1263,7 +1486,7 @@ function openInsights(){
       DB.insights.slice().reverse().map(ins=>`
         <div class="card insight-card">
           <div class="insight-date">${new Date(ins.date).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'})}</div>
-          <div class="insight-body">${escapeHtml(ins.content).replace(/\\n/g,'<br/>')}</div>
+          <div class="insight-body">${mdToHtml(ins.content)}</div>
         </div>
       `).join('')}
     </div>
@@ -1332,6 +1555,37 @@ function openSettings(){
     </div>
 
     <div class="settings-group">
+      <h3>Income Reminder</h3>
+      <div class="settings-row">
+        <div><div class="t">Remind me monthly</div><div class="s">Nudge on the Dashboard if no income's logged yet</div></div>
+        <div class="switch ${DB.settings.incomeReminder.enabled?'on':''}" onclick="toggleIncomeReminder(this)"><div class="knob"></div></div>
+      </div>
+      <div class="field-row" style="margin-top:12px;">
+        <div class="field" style="flex:0 0 100px;">
+          <label>Day of month</label>
+          <input type="number" id="s-reminder-day" min="1" max="28" value="${DB.settings.incomeReminder.day||1}"/>
+        </div>
+        <div class="field" style="flex:1;">
+          <label>Label</label>
+          <input type="text" id="s-reminder-label" placeholder="Salary" value="${escapeAttr(DB.settings.incomeReminder.label||'Salary')}"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <h3>Custom Categories</h3>
+      ${DB.customCategories.length===0? `<div class="helptext">None yet — tap "➕ New" in the category picker while adding a transaction to create one.</div>` :
+      DB.customCategories.map(c=>`
+        <div class="settings-row">
+          <div><div class="t">${c.icon} ${escapeHtml(c.name)}</div><div class="s">${c.type==='expense'?'Expense':'Income'} category</div></div>
+          <div class="icon-btn" style="width:32px;height:32px;" onclick="removeCustomCategory('${c.id}')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="settings-group">
       <h3>Preferences</h3>
       <div class="field"><label>Currency</label>
         <select id="s-currency">
@@ -1356,7 +1610,7 @@ function openSettings(){
     </div>
 
     <button class="btn btn-primary btn-block" onclick="saveSettings()">Save Settings</button>
-    <div class="helptext" style="text-align:center;margin-top:14px;">Sable v1.0 · Your data, your device, your keys.</div>
+    <div class="helptext" style="text-align:center;margin-top:14px;">Sable PY v1.0 · Your data, your device, your keys.<br/>Created by Purusharth Yaduwanshi.</div>
   `);
 }
 function selectTheme(id, el){
@@ -1374,7 +1628,15 @@ function saveSettings(){
   DB.settings.groqApiKey = document.getElementById('s-groq-key').value.trim();
   DB.settings.groqModel = document.getElementById('s-groq-model').value;
   DB.settings.currency = document.getElementById('s-currency').value;
+  const day = Math.min(28, Math.max(1, parseInt(document.getElementById('s-reminder-day').value,10)||1));
+  DB.settings.incomeReminder.day = day;
+  DB.settings.incomeReminder.label = document.getElementById('s-reminder-label').value.trim() || 'Salary';
   saveDB(); closeModal(); render(); toast('Settings saved','✓');
+}
+function toggleIncomeReminder(el){
+  el.classList.toggle('on');
+  DB.settings.incomeReminder.enabled = el.classList.contains('on');
+  saveDB();
 }
 async function testGroqConnection(){
   const key = document.getElementById('s-groq-key').value.trim();

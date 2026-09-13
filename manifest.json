@@ -1,7 +1,7 @@
 {
-  "name": "Sable — Private Ledger",
-  "short_name": "Sable",
-  "description": "A private, on-device personal finance and net worth tracker with Groq AI insights.",
+  "name": "Sable PY — Private Ledger",
+  "short_name": "Sable PY",
+  "description": "A private, on-device personal finance and net worth tracker with Groq AI insights. Created by Purusharth Yaduwanshi.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

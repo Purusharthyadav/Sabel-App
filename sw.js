@@ -1,4 +1,4 @@
-const CACHE = 'sable-shell-v2';
+const CACHE = 'sable-shell-v3';
 const SHELL_FILES = ['./index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
@@ -15,20 +15,22 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  // Never touch cross-origin requests (Groq API, Google Fonts) — always go to network.
+  // Never touch cross-origin requests (Groq API, Google Fonts) — always go straight to network.
   if (url.origin !== self.location.origin) return;
   if (e.request.method !== 'GET') return;
 
+  // Network-first: always try to get the freshest file when online, so updates
+  // show up the moment you reopen the app — no more needing to force-close it.
+  // Only falls back to whatever's cached if the network request fails (offline).
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      const network = fetch(e.request).then(res => {
+    fetch(e.request)
+      .then(res => {
         if (res && res.ok) {
           const clone = res.clone();
           caches.open(CACHE).then(cache => cache.put(e.request, clone));
         }
         return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
+      })
+      .catch(() => caches.match(e.request))
   );
 });

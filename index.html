@@ -770,8 +770,8 @@ function switchTab(tab){
 function render(){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.tab===activeTab));
   const view = document.getElementById('view');
-  const fab = document.querySelector('.fab'); if(fab) fab.remove();
-  const chatbar = document.querySelector('.chat-input-bar'); if(chatbar) chatbar.remove();
+  document.querySelectorAll('.fab').forEach(el=>el.remove());
+  document.querySelectorAll('.chat-input-bar').forEach(el=>el.remove());
   document.getElementById('bottomnav').style.display='flex';
 
   if(activeTab==='dashboard') view.innerHTML = renderDashboard();
@@ -1435,6 +1435,7 @@ function renderAssistant(){
     <button class="send-btn" id="chat-send" onclick="sendChat()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
     </button>`;
+  document.querySelectorAll('.chat-input-bar').forEach(el=>el.remove());
   document.body.appendChild(bar);
   const scroll = document.getElementById('chat-scroll');
   scroll.parentElement.scrollTop = scroll.parentElement.scrollHeight;
@@ -1485,12 +1486,23 @@ function openInsights(){
       ${DB.insights.length===0? `<div class="list-empty"><div class="glyph">🌱</div><div class="t">No reports yet</div><div class="s">Generate your first one above.</div></div>` :
       DB.insights.slice().reverse().map(ins=>`
         <div class="card insight-card">
-          <div class="insight-date">${new Date(ins.date).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'})}</div>
-          <div class="insight-body">${mdToHtml(ins.content)}</div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+            <div class="insight-date">${new Date(ins.date).toLocaleString('en-US',{dateStyle:'medium',timeStyle:'short'})}</div>
+            <div class="icon-btn" style="width:28px;height:28px;flex-shrink:0;" onclick="deleteInsight('${ins.id}')" title="Delete this report">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+            </div>
+          </div>
+          <div class="insight-body">${mdToHtml(ins.content||'')}</div>
         </div>
       `).join('')}
     </div>
   `);
+}
+function deleteInsight(id){
+  DB.insights = DB.insights.filter(i=>i.id!==id);
+  saveDB();
+  openInsights();
+  toast('Report deleted');
 }
 async function generateInsight(){
   if(!DB.settings.groqApiKey){ toast('Add your Groq API key in Settings first','🔑'); return; }
@@ -1518,6 +1530,14 @@ function openSettings(){
   renderModal(`
     <div class="sheet-handle"></div>
     <div class="sheet-header"><h2>Settings</h2><div class="sheet-close" onclick="closeModal()">✕</div></div>
+
+    <div class="settings-group">
+      <h3>AI Insights</h3>
+      <div class="settings-row" style="cursor:pointer;" onclick="openInsights()">
+        <div><div class="t">✨ View all insight reports</div><div class="s">${DB.insights.length} saved so far · generate, review, or delete</div></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:16px;height:16px;color:var(--text-faint);"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
 
     <div class="settings-group">
       <h3>Groq API</h3>
